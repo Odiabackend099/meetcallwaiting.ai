@@ -1008,20 +1008,55 @@
             alert(`Test call feature: In a real implementation, this would initiate a test call to ${onboardingState.assignedNumber} to verify the IVR flow is working.`);
         }
         
-        // Modal function (simplified for demo)
+        // Modal system
         function showModal(modalType) {
-            const messages = {
-                'stripe': 'Stripe Connect: In production, this would open the Stripe Connect OAuth flow.',
-                'calendar': 'Calendar Connect: This would open Google/Outlook OAuth to connect your calendar.',
-                'email': 'Email Setup: Configure SendGrid or Gmail SMTP for sending notifications.',
-                'forwarding': 'Call Forwarding Guide: Set up conditional call forwarding on your main number to forward to this AI number when busy or no answer.',
-                'test-call': 'Test Call: This would place a test call to verify your IVR flow is working correctly.',
-                'order': 'Order Test: This would simulate a customer calling to place an order.',
-                'booking': 'Booking Test: This would simulate a customer calling to book an appointment.',
-                'voicemail': 'Voicemail Test: This would simulate a customer leaving a voicemail.'
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            
+            const modalData = {
+                'stripe': {
+                    title: 'Connect Stripe',
+                    body: 'In production, this would open the Stripe Connect OAuth flow to securely connect your payment processing account.'
+                },
+                'calendar': {
+                    title: 'Connect Calendar',
+                    body: 'This would open Google/Outlook OAuth to connect your calendar for automatic appointment scheduling.'
+                },
+                'email': {
+                    title: 'Connect Email',
+                    body: 'This would open Gmail/SendGrid OAuth to connect your email for sending notifications and confirmations.'
+                },
+                'forwarding': {
+                    title: 'Call Forwarding Setup',
+                    body: 'To receive calls on your assigned number, set up call forwarding from your main business number to: ' + (onboardingState.assignedNumber || 'your assigned number')
+                },
+                'order': {
+                    title: 'Test Order Flow',
+                    body: 'This would simulate a customer calling your number, selecting "Place Order" from the IVR menu, and going through the order process.'
+                },
+                'booking': {
+                    title: 'Test Booking Flow',
+                    body: 'This would simulate a customer calling your number, selecting "Book Appointment" from the IVR menu, and scheduling an appointment.'
+                },
+                'voicemail': {
+                    title: 'Test Voicemail Flow',
+                    body: 'This would simulate a customer calling your number and leaving a voicemail when you\'re unavailable.'
+                }
             };
             
-            alert(messages[modalType] || `Modal for ${modalType} not implemented in demo.`);
+            const data = modalData[modalType] || {
+                title: 'Feature Coming Soon',
+                body: 'This feature is under development and will be available soon.'
+            };
+            
+            modalTitle.textContent = data.title;
+            modalBody.textContent = data.body;
+            modal.style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
         }
         
         // Make functions global for onclick handlers
@@ -1030,6 +1065,7 @@
         window.connectEmail = connectEmail;
         window.testCall = testCall;
         window.showModal = showModal;
+        window.closeModal = closeModal;
         
         // Global state to store merchant info during onboarding
         let currentMerchant = null;
@@ -1048,19 +1084,42 @@
         document.getElementById('account-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Store account data for later use
-            onboardingState.accountData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                acceptTerms: document.getElementById('accept').checked
-            };
+            // Get form values
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const acceptTerms = document.getElementById('accept').checked;
             
-            if (!onboardingState.accountData.acceptTerms) {
+            // Validate form data
+            if (!name || name.trim().length < 2) {
+                alert('Please enter your full name');
+                return;
+            }
+            
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            if (!password || password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+            
+            if (!acceptTerms) {
                 alert('Please accept the terms and conditions to continue.');
                 return;
             }
             
+            // Store account data for later use
+            onboardingState.accountData = {
+                name: name.trim(),
+                email: email.trim(),
+                password: password,
+                acceptTerms: acceptTerms
+            };
+            
+            console.log('Account data validated and stored:', onboardingState.accountData);
             nextStep(1);
         });
         
@@ -1074,14 +1133,57 @@
             submitButton.textContent = 'Creating...';
             submitButton.disabled = true;
             
-            // Collect business form data
+            // Collect and validate business form data
+            const businessName = document.getElementById('businessName').value;
+            const industry = document.getElementById('industry').value;
+            const country = document.getElementById('country').value;
+            const timezone = document.getElementById('timezone').value;
+            const currency = document.getElementById('currency').value;
+            const website = document.getElementById('website')?.value || null;
+            
+            // Validate required fields
+            if (!businessName || businessName.trim().length < 2) {
+                alert('Please enter your business name');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                return;
+            }
+            
+            if (!industry) {
+                alert('Please select your industry');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                return;
+            }
+            
+            if (!country) {
+                alert('Please select your country');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                return;
+            }
+            
+            if (!timezone) {
+                alert('Please select your timezone');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                return;
+            }
+            
+            if (!currency) {
+                alert('Please select your currency');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                return;
+            }
+            
             const businessData = {
-                name: document.getElementById('businessName').value,
-                industry: document.getElementById('industry').value,
-                country: document.getElementById('country').value,
-                timezone: document.getElementById('timezone').value,
-                currency: document.getElementById('currency').value,
-                website: document.getElementById('website')?.value || null,
+                name: businessName.trim(),
+                industry: industry,
+                country: country,
+                timezone: timezone,
+                currency: currency,
+                website: website?.trim() || null,
                 owner_phone: onboardingState.accountData?.email || null, // Use email temporarily
                 billing_email: onboardingState.accountData?.email || null
             };
@@ -1091,16 +1193,16 @@
             
             try {
                 // Submit to backend
-                const response = await apiClient.submitOnboardingData(businessData);
+                const response = await apiClient.createMerchant(businessData);
                 
                 if (response.success) {
                     currentMerchant = response.data;
                     console.log('Merchant created successfully:', currentMerchant);
                     
                     // Automatically assign a number
-                    const numberResponse = await apiClient.assignNumber(currentMerchant.id);
+                    const numberResponse = await apiClient.allocateNumber(currentMerchant.id);
                     if (numberResponse.success) {
-                        onboardingState.assignedNumber = numberResponse.data.number;
+                        onboardingState.assignedNumber = numberResponse.data;
                         console.log('Number assigned:', onboardingState.assignedNumber);
                     }
                     
@@ -1127,5 +1229,106 @@
             nextStep(5);
         });
     </script>
+
+    <!-- Modal -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal Title</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-body">Modal content goes here.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-button" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--navy-900);
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--slate-600);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--navy-900);
+        }
+
+        .modal-body {
+            padding: 20px;
+            color: var(--slate-600);
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .modal-button:hover {
+            background: var(--primary-dark);
+        }
+    </style>
 </body>
 </html>

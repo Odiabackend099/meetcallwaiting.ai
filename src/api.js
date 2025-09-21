@@ -419,6 +419,28 @@ class ApiClient {
     }
   }
 
+  // Create new merchant
+  async createMerchant(merchantData) {
+    try {
+      const response = await this.request('/api/merchants/create', {
+        method: 'POST',
+        body: JSON.stringify(merchantData)
+      });
+      return {
+        success: true,
+        message: response.message || 'Merchant created successfully',
+        data: response.merchant
+      };
+    } catch (error) {
+      console.error('Error creating merchant:', error);
+      return {
+        success: false,
+        message: 'Failed to create merchant: ' + error.message,
+        data: null
+      };
+    }
+  }
+
   // Get merchant by ID
   async getMerchant(merchantId) {
     try {
@@ -456,6 +478,31 @@ class ApiClient {
       return {
         success: false,
         message: 'Failed to update merchant settings: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  // Allocate phone number to merchant
+  async allocateNumber(merchantId, region = 'US') {
+    try {
+      const response = await this.request('/api/numbers/allocate', {
+        method: 'POST',
+        body: JSON.stringify({
+          merchant_id: merchantId,
+          region: region
+        })
+      });
+      return {
+        success: true,
+        message: 'Phone number allocated successfully',
+        data: response.number
+      };
+    } catch (error) {
+      console.error('Error allocating number:', error);
+      return {
+        success: false,
+        message: 'Failed to allocate phone number: ' + error.message,
         data: null
       };
     }
