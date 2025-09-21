@@ -45,7 +45,7 @@ Callwaiting AI transforms missed calls into bookings and paid orders. When your 
 
 To set up the Supabase database:
 
-1. Open the [schema.sql](schema.sql) file in this project
+1. Open the [database/schema.sql](database/schema.sql) file in this project
 2. Copy its entire contents
 3. Go to your Supabase dashboard at https://app.supabase.com/project/bpszfikedkkwlmptscgh
 4. Navigate to SQL Editor in the left sidebar
@@ -54,23 +54,44 @@ To set up the Supabase database:
 
 This will create all required tables and set up the database properly.
 
-For detailed instructions, please refer to the [SUPABASE_SETUP.md](SUPABASE_SETUP.md) file.
+For detailed instructions, please refer to the [ENVIRONMENT-SETUP.md](ENVIRONMENT-SETUP.md) file.
 
 ## Project Structure
 
 ```
 .
-├── index.html          # Landing page
-├── onboarding.html     # User onboarding flow
-├── demo.html           # Interactive demo
-├── dashboard.html      # User dashboard
-├── package.json        # Project dependencies and scripts
-├── vite.config.js      # Vite configuration
-├── schema.sql          # Database schema
-├── SUPABASE_SETUP.md   # Database setup guide
-├── .gitignore          # Git ignore rules
-├── README.md           # This file
-└── public/             # Static assets (if any)
+├── index.html                    # Landing page
+├── onboarding.html               # Business signup flow
+├── business-dashboard.html       # Main dashboard
+├── how-it-works.html             # Product information
+├── solutions.html                # Solutions page
+├── pricing.html                  # Pricing page
+├── demo.html                     # Interactive demo
+├── support.html                  # Support page
+├── legal/
+│   ├── privacy.html              # Privacy policy
+│   └── terms.html                # Terms of service
+├── apps/
+│   └── api/                      # Backend API
+│       ├── src/
+│       │   ├── routes/           # API routes
+│       │   ├── middleware/       # Authentication & security
+│       │   └── utils/            # Database & utilities
+│       └── package.json          # Backend dependencies
+├── database/
+│   ├── schema.sql                # Database schema
+│   └── rls-policies.sql          # Security policies
+├── src/
+│   ├── api.js                    # Frontend API client
+│   └── config.js                 # Configuration
+├── public/
+│   └── audio/                    # Static assets
+├── package.json                  # Project dependencies
+├── vite.config.js                # Build configuration
+├── vercel.json                   # Deployment configuration
+├── ENVIRONMENT-SETUP.md          # Environment setup guide
+├── BUSINESS-SIGNUP-TESTING-GUIDE.md # Testing guide
+└── README.md                     # This file
 ```
 
 ## Available Scripts

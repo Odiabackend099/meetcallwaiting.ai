@@ -18,14 +18,6 @@
       "use": "@vercel/static"
     },
     {
-      "src": "business-user-test.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "production-ready-test.html",
-      "use": "@vercel/static"
-    },
-    {
       "src": "how-it-works.html",
       "use": "@vercel/static"
     },
@@ -64,14 +56,6 @@
       "destination": "/business-dashboard.html"
     },
     {
-      "source": "/test",
-      "destination": "/production-ready-test.html"
-    },
-    {
-      "source": "/user-test",
-      "destination": "/business-user-test.html"
-    },
-    {
       "source": "/how-it-works",
       "destination": "/how-it-works.html"
     },
@@ -108,16 +92,6 @@
     {
       "source": "/dashboard.html",
       "destination": "/dashboard",
-      "permanent": true
-    },
-    {
-      "source": "/test.html",
-      "destination": "/test",
-      "permanent": true
-    },
-    {
-      "source": "/user-test.html",
-      "destination": "/user-test",
       "permanent": true
     }
   ],
