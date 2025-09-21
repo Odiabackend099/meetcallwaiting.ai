@@ -54,66 +54,71 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/index.html"
+      "source": "/onboarding",
+      "destination": "/onboarding.html"
     },
     {
-      "src": "/onboarding",
-      "dest": "/onboarding.html"
+      "source": "/dashboard",
+      "destination": "/business-dashboard.html"
     },
     {
-      "src": "/dashboard",
-      "dest": "/business-dashboard.html"
+      "source": "/test",
+      "destination": "/production-ready-test.html"
     },
     {
-      "src": "/test",
-      "dest": "/production-ready-test.html"
+      "source": "/user-test",
+      "destination": "/business-user-test.html"
     },
     {
-      "src": "/user-test",
-      "dest": "/business-user-test.html"
+      "source": "/how-it-works",
+      "destination": "/how-it-works.html"
     },
     {
-      "src": "/how-it-works",
-      "dest": "/how-it-works.html"
+      "source": "/solutions",
+      "destination": "/solutions.html"
     },
     {
-      "src": "/solutions",
-      "dest": "/solutions.html"
+      "source": "/pricing",
+      "destination": "/pricing.html"
     },
     {
-      "src": "/pricing",
-      "dest": "/pricing.html"
+      "source": "/demo",
+      "destination": "/demo.html"
     },
     {
-      "src": "/demo",
-      "dest": "/demo.html"
+      "source": "/support",
+      "destination": "/support.html"
     },
     {
-      "src": "/support",
-      "dest": "/support.html"
+      "source": "/legal/privacy",
+      "destination": "/legal/privacy.html"
     },
     {
-      "src": "/legal/privacy",
-      "dest": "/legal/privacy.html"
+      "source": "/legal/terms",
+      "destination": "/legal/terms.html"
     },
     {
-      "src": "/legal/terms",
-      "dest": "/legal/terms.html"
+      "source": "/api/(.*)",
+      "destination": "https://your-api-domain.com/api/$1"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/dashboard.html",
+      "destination": "/dashboard",
+      "permanent": true
     },
     {
-      "src": "/api/(.*)",
-      "dest": "https://your-api-domain.com/api/$1"
+      "source": "/test.html",
+      "destination": "/test",
+      "permanent": true
     },
     {
-      "src": "/(.*)\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json|webp|mp3|wav)",
-      "dest": "/$1.$2"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/user-test.html",
+      "destination": "/user-test",
+      "permanent": true
     }
   ],
   "headers": [
