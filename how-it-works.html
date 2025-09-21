@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works - Callwaiting AI</title>
+    <meta name="description" content="Learn how Callwaiting AI transforms missed calls into bookings and orders. Simple setup, powerful results.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #01C6D6;
+            --primary-dark: #0A5AA8;
+            --primary-light: #6FE7F2;
+            --accent: #16E0C1;
+            --navy-900: #0B2142;
+            --navy-700: #123A69;
+            --slate-600: #64748B;
+            --slate-100: #F1F5F9;
+            --white: #FFFFFF;
+            --danger: #E11D48;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --gradient-hero: linear-gradient(135deg, #01C6D6 0%, #0A5AA8 50%, #16E0C1 100%);
+            --shadow-soft: 0 10px 30px rgba(1, 198, 214, 0.15);
+            --shadow-hard: 0 12px 40px rgba(11, 33, 66, 0.35);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--navy-900);
+            background-color: var(--slate-100);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: var(--gradient-hero);
+            backdrop-filter: blur(12px);
+            padding: 16px 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .nav-link.active {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .cta-button {
+            background-color: var(--white);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-hard);
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(11, 33, 66, 0.45);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 60px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--navy-900);
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--slate-600);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .primary-button {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 16px 32px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .primary-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Steps Section */
+        .steps-section {
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 60px;
+            color: var(--navy-900);
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .step-number {
+            min-width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gradient-hero);
+            color: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--navy-900);
+        }
+
+        .step-description {
+            font-size: 16px;
+            color: var(--slate-600);
+            margin-bottom: 20px;
+        }
+
+        .step-details {
+            background: var(--slate-100);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+
+        .step-details h4 {
+            color: var(--navy-900);
+            margin-bottom: 10px;
+        }
+
+        .step-details ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .step-details li {
+            padding: 5px 0;
+            color: var(--slate-600);
+        }
+
+        .step-details li:before {
+            content: "✓ ";
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Forwarding Guide */
+        .forwarding-guide {
+            background: var(--white);
+            padding: 60px 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 60px;
+        }
+
+        .forwarding-guide h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--navy-900);
+        }
+
+        .carrier-instructions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .carrier-card {
+            background: var(--slate-100);
+            padding: 30px;
+            border-radius: var(--radius-md);
+        }
+
+        .carrier-card h3 {
+            color: var(--navy-900);
+            margin-bottom: 15px;
+        }
+
+        .carrier-card ol {
+            padding-left: 20px;
+        }
+
+        .carrier-card li {
+            margin-bottom: 8px;
+            color: var(--slate-600);
+        }
+
+        /* Benefits Section */
+        .benefits-section {
+            background: var(--white);
+            padding: 80px 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 60px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .benefit-card {
+            text-align: center;
+        }
+
+        .benefit-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .benefit-title {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--navy-900);
+        }
+
+        .benefit-description {
+            color: var(--slate-600);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            background: var(--gradient-hero);
+            color: var(--white);
+            padding: 80px 40px;
+            border-radius: var(--radius-lg);
+        }
+
+        .cta-title {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .cta-subtitle {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button-white {
+            background-color: var(--white);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 16px 32px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(11, 33, 66, 0.45);
+        }
+
+        .cta-button-outline {
+            background-color: transparent;
+            color: var(--white);
+            border: 2px solid var(--white);
+            border-radius: var(--radius-xl);
+            padding: 14px 30px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button-outline:hover {
+            background-color: var(--white);
+            color: var(--navy-900);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--navy-900);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 12px;
+        }
+
+        .footer-link a {
+            color: var(--slate-100);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: var(--accent);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--slate-100);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .step-number {
+                align-self: center;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .carrier-instructions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="logo">Callwaiting AI</a>
+            <div class="nav-links">
+                <a href="/how-it-works" class="nav-link active">How it Works</a>
+                <a href="/solutions" class="nav-link">Solutions</a>
+                <a href="/pricing" class="nav-link">Pricing</a>
+                <a href="/demo" class="nav-link">Demo</a>
+            </div>
+            <a href="/onboarding" class="cta-button">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <h1 class="hero-title">How Callwaiting AI Works</h1>
+                <p class="hero-subtitle">Transform missed calls into revenue in just 3 simple steps. No complex setup, no technical knowledge required.</p>
+                <a href="/onboarding" class="primary-button">Start Free Setup</a>
+            </section>
+
+            <!-- Steps Section -->
+            <section class="steps-section">
+                <h2 class="section-title">Get Started in 3 Steps</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Set Up Your Account</h3>
+                            <p class="step-description">Create your business profile and connect your payment and calendar systems.</p>
+                            <div class="step-details">
+                                <h4>What you'll do:</h4>
+                                <ul>
+                                    <li>Enter your business information</li>
+                                    <li>Connect Stripe or PayPal for payments</li>
+                                    <li>Link Google Calendar or Calendly</li>
+                                    <li>Get your dedicated AI phone number</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Forward Your Calls</h3>
+                            <p class="step-description">Set up call forwarding from your main number to your AI number when busy or no answer.</p>
+                            <div class="step-details">
+                                <h4>How it works:</h4>
+                                <ul>
+                                    <li>Keep your existing phone number</li>
+                                    <li>Set up conditional forwarding</li>
+                                    <li>AI only answers when you can't</li>
+                                    <li>No disruption to your normal calls</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3 class="step-title">AI Handles Everything</h3>
+                            <p class="step-description">Your AI assistant answers calls, takes orders, books appointments, and sends confirmations automatically.</p>
+                            <div class="step-details">
+                                <h4>What happens:</h4>
+                                <ul>
+                                    <li>AI greets callers professionally</li>
+                                    <li>Collects order or booking details</li>
+                                    <li>Sends payment links or calendar invites</li>
+                                    <li>Notifies you of all interactions</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Forwarding Guide -->
+            <section id="forwarding" class="forwarding-guide">
+                <h2>Call Forwarding Setup Guide</h2>
+                <p style="text-align: center; margin-bottom: 40px; color: var(--slate-600);">Follow these instructions to set up call forwarding with your carrier:</p>
+                
+                <div class="carrier-instructions">
+                    <div class="carrier-card">
+                        <h3>Verizon</h3>
+                        <ol>
+                            <li>Dial *72 from your phone</li>
+                            <li>Enter your AI number when prompted</li>
+                            <li>Press # to confirm</li>
+                            <li>Wait for confirmation tone</li>
+                        </ol>
+                    </div>
+
+                    <div class="carrier-card">
+                        <h3>AT&T</h3>
+                        <ol>
+                            <li>Dial *72 from your phone</li>
+                            <li>Enter your AI number</li>
+                            <li>Press # to confirm</li>
+                            <li>Listen for confirmation</li>
+                        </ol>
+                    </div>
+
+                    <div class="carrier-card">
+                        <h3>T-Mobile</h3>
+                        <ol>
+                            <li>Dial *72 from your phone</li>
+                            <li>Enter your AI number</li>
+                            <li>Press # to confirm</li>
+                            <li>Wait for confirmation</li>
+                        </ol>
+                    </div>
+
+                    <div class="carrier-card">
+                        <h3>Sprint</h3>
+                        <ol>
+                            <li>Dial *72 from your phone</li>
+                            <li>Enter your AI number</li>
+                            <li>Press # to confirm</li>
+                            <li>Listen for confirmation</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Benefits Section -->
+            <section class="benefits-section">
+                <h2 class="section-title">Why Choose Callwaiting AI?</h2>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⚡</div>
+                        <h3 class="benefit-title">10-Minute Setup</h3>
+                        <p class="benefit-description">Get up and running in minutes, not hours. No technical expertise required.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💰</div>
+                        <h3 class="benefit-title">Never Miss Revenue</h3>
+                        <p class="benefit-description">Convert every missed call into a booking or order. Turn busy signals into business.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🛡️</div>
+                        <h3 class="benefit-title">Compliance Ready</h3>
+                        <p class="benefit-description">Built-in SMS compliance, recording disclosures, and data protection.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📊</div>
+                        <h3 class="benefit-title">Real-Time Analytics</h3>
+                        <p class="benefit-description">Track calls, conversions, and revenue with detailed reporting.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="cta-section">
+                <h2 class="cta-title">Ready to Get Started?</h2>
+                <p class="cta-subtitle">Join thousands of businesses already using Callwaiting AI to capture every opportunity.</p>
+                <div class="cta-buttons">
+                    <a href="/onboarding" class="cta-button-white">Start Free Setup</a>
+                    <a href="/demo" class="cta-button-outline">Try Live Demo</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Product</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/how-it-works">How it Works</a></li>
+                        <li class="footer-link"><a href="/solutions">Solutions</a></li>
+                        <li class="footer-link"><a href="/pricing">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/support">Support</a></li>
+                        <li class="footer-link"><a href="/legal/privacy">Privacy</a></li>
+                        <li class="footer-link"><a href="/legal/terms">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © Callwaiting AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - Callwaiting AI</title>
+    <meta name="description" content="Callwaiting AI Terms of Service. Read our terms and conditions for using our voice AI service.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #01C6D6;
+            --primary-dark: #0A5AA8;
+            --primary-light: #6FE7F2;
+            --accent: #16E0C1;
+            --navy-900: #0B2142;
+            --navy-700: #123A69;
+            --slate-600: #64748B;
+            --slate-100: #F1F5F9;
+            --white: #FFFFFF;
+            --danger: #E11D48;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --gradient-hero: linear-gradient(135deg, #01C6D6 0%, #0A5AA8 50%, #16E0C1 100%);
+            --shadow-soft: 0 10px 30px rgba(1, 198, 214, 0.15);
+            --shadow-hard: 0 12px 40px rgba(11, 33, 66, 0.35);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--navy-900);
+            background-color: var(--slate-100);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: var(--gradient-hero);
+            backdrop-filter: blur(12px);
+            padding: 16px 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .cta-button {
+            background-color: var(--white);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-hard);
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(11, 33, 66, 0.45);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 60px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .legal-content {
+            background: var(--white);
+            padding: 60px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .legal-title {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: var(--navy-900);
+        }
+
+        .legal-date {
+            color: var(--slate-600);
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .legal-section {
+            margin-bottom: 40px;
+        }
+
+        .legal-section h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--navy-900);
+        }
+
+        .legal-section h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--navy-900);
+        }
+
+        .legal-section p {
+            margin-bottom: 16px;
+            color: var(--slate-600);
+        }
+
+        .legal-section ul {
+            margin-bottom: 16px;
+            padding-left: 20px;
+        }
+
+        .legal-section li {
+            margin-bottom: 8px;
+            color: var(--slate-600);
+        }
+
+        .contact-info {
+            background: var(--slate-100);
+            padding: 30px;
+            border-radius: var(--radius-md);
+            margin-top: 40px;
+        }
+
+        .contact-info h3 {
+            margin-bottom: 16px;
+            color: var(--navy-900);
+        }
+
+        .contact-info p {
+            margin-bottom: 8px;
+            color: var(--slate-600);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--navy-900);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 12px;
+        }
+
+        .footer-link a {
+            color: var(--slate-100);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: var(--accent);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--slate-100);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .legal-content {
+                padding: 40px 20px;
+            }
+
+            .legal-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="logo">Callwaiting AI</a>
+            <div class="nav-links">
+                <a href="/how-it-works" class="nav-link">How it Works</a>
+                <a href="/solutions" class="nav-link">Solutions</a>
+                <a href="/pricing" class="nav-link">Pricing</a>
+                <a href="/demo" class="nav-link">Demo</a>
+            </div>
+            <a href="/onboarding" class="cta-button">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="legal-content">
+                <h1 class="legal-title">Terms of Service</h1>
+                <p class="legal-date">Last updated: January 2025</p>
+
+                <div class="legal-section">
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>By accessing and using Callwaiting AI ("Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+                </div>
+
+                <div class="legal-section">
+                    <h2>2. Description of Service</h2>
+                    <p>Callwaiting AI provides voice AI services for call handling, appointment booking, order processing, and customer communication. Our service includes:</p>
+                    <ul>
+                        <li>AI-powered call answering and routing</li>
+                        <li>Automated appointment scheduling</li>
+                        <li>Order processing and payment collection</li>
+                        <li>SMS and email notifications</li>
+                        <li>Analytics and reporting</li>
+                        <li>Integration with third-party services</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2>3. User Accounts</h2>
+                    <p>To use our service, you must create an account and provide accurate, complete information. You are responsible for:</p>
+                    <ul>
+                        <li>Maintaining the confidentiality of your account credentials</li>
+                        <li>All activities that occur under your account</li>
+                        <li>Notifying us immediately of any unauthorized use</li>
+                        <li>Ensuring your contact information is current</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2>4. Acceptable Use</h2>
+                    <p>You agree to use our service only for lawful purposes and in accordance with these terms. You may not:</p>
+                    <ul>
+                        <li>Use the service for illegal or unauthorized purposes</li>
+                        <li>Transmit harmful, threatening, or offensive content</li>
+                        <li>Attempt to gain unauthorized access to our systems</li>
+                        <li>Interfere with or disrupt the service</li>
+                        <li>Use the service to spam or harass others</li>
+                        <li>Violate any applicable laws or regulations</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2>5. Payment Terms</h2>
+                    <p>Our service is provided on a subscription basis with the following terms:</p>
+                    <ul>
+                        <li>Fees are billed in advance on a monthly or annual basis</li>
+                        <li>All fees are non-refundable except as required by law</li>
+                        <li>We may change our fees with 30 days' notice</li>
+                        <li>You are responsible for all applicable taxes</li>
+                        <li>Payment failures may result in service suspension</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2>6. Free Trial</h2>
+                    <p>We offer a 14-day free trial for new users. During the trial period:</p>
+                    <ul>
+                        <li>You have access to all features of your selected plan</li>
+                        <li>No payment is required during the trial</li>
+                        <li>You may cancel at any time without charge</li>
+                        <li>Service will automatically convert to paid subscription after trial</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2>7. Data and Privacy</h2>
+                    <p>Your privacy is important to us. Our collection and use of personal information is governed by our Privacy Policy, which is incorporated into these terms by reference.</p>
+                </div>
+
+                <div class="legal-section">
+                    <h2>8. Intellectual Property</h2>
+                    <p>All content, features, and functionality of our service are owned by Callwaiting AI and are protected by copyright, trademark, and other intellectual property laws. You may not:</p>
+                    <ul>
+                        <li>Copy, modify, or distribute our proprietary content</li>
+                        <li>Reverse engineer or attempt to extract source code</li>
+                        <li>Use our trademarks without permission</li>
+                        <li>Create derivative works based on our service</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2>9. Service Availability</h2>
+                    <p>We strive to maintain high service availability but cannot guarantee uninterrupted access. We may:</p>
+                    <ul>
+                        <li>Perform scheduled maintenance with advance notice</li>
+                        <li>Suspend service for security or legal reasons</li>
+                        <li>Modify or discontinue features as needed</li>
+                        <li>Experience outages due to factors beyond our control</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2>10. Limitation of Liability</h2>
+                    <p>To the maximum extent permitted by law, Callwaiting AI shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or business opportunities.</p>
+                </div>
+
+                <div class="legal-section">
+                    <h2>11. Indemnification</h2>
+                    <p>You agree to indemnify and hold harmless Callwaiting AI from any claims, damages, or expenses arising from your use of the service or violation of these terms.</p>
+                </div>
+
+                <div class="legal-section">
+                    <h2>12. Termination</h2>
+                    <p>Either party may terminate this agreement at any time. Upon termination:</p>
+                    <ul>
+                        <li>Your access to the service will be discontinued</li>
+                        <li>You remain liable for any outstanding fees</li>
+                        <li>We may delete your data after a reasonable period</li>
+                        <li>Certain provisions will survive termination</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h2>13. Governing Law</h2>
+                    <p>These terms shall be governed by and construed in accordance with the laws of the State of Delaware, without regard to conflict of law principles.</p>
+                </div>
+
+                <div class="legal-section">
+                    <h2>14. Changes to Terms</h2>
+                    <p>We reserve the right to modify these terms at any time. We will notify users of material changes via email or through the service. Continued use after changes constitutes acceptance of the new terms.</p>
+                </div>
+
+                <div class="legal-section">
+                    <h2>15. Contact Information</h2>
+                    <p>If you have any questions about these terms, please contact us at legal@callwaiting.ai</p>
+                </div>
+
+                <div class="contact-info">
+                    <h3>Contact Us</h3>
+                    <p>For questions about these Terms of Service, please contact us:</p>
+                    <p><strong>Email:</strong> legal@callwaiting.ai</p>
+                    <p><strong>Address:</strong> Callwaiting AI, 123 Business Ave, Suite 100, City, State 12345</p>
+                    <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Product</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/how-it-works">How it Works</a></li>
+                        <li class="footer-link"><a href="/solutions">Solutions</a></li>
+                        <li class="footer-link"><a href="/pricing">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/support">Support</a></li>
+                        <li class="footer-link"><a href="/legal/privacy">Privacy</a></li>
+                        <li class="footer-link"><a href="/legal/terms">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © Callwaiting AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

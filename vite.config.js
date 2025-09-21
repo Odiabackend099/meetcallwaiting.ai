@@ -31,15 +31,22 @@ export default defineConfig({
     // Generate source maps
     sourcemap: true,
     // Include HTML files in build
-    rollupOptions: {
-      input: {
-        main: resolve(fileURLToPath(new URL('.', import.meta.url)), 'index.html'),
-        onboarding: resolve(fileURLToPath(new URL('.', import.meta.url)), 'onboarding.html'),
-        dashboard: resolve(fileURLToPath(new URL('.', import.meta.url)), 'business-dashboard.html'),
-        test: resolve(fileURLToPath(new URL('.', import.meta.url)), 'production-ready-test.html'),
-        userTest: resolve(fileURLToPath(new URL('.', import.meta.url)), 'business-user-test.html')
+      rollupOptions: {
+        input: {
+          main: resolve(fileURLToPath(new URL('.', import.meta.url)), 'index.html'),
+          onboarding: resolve(fileURLToPath(new URL('.', import.meta.url)), 'onboarding.html'),
+          dashboard: resolve(fileURLToPath(new URL('.', import.meta.url)), 'business-dashboard.html'),
+          test: resolve(fileURLToPath(new URL('.', import.meta.url)), 'production-ready-test.html'),
+          userTest: resolve(fileURLToPath(new URL('.', import.meta.url)), 'business-user-test.html'),
+          'how-it-works': resolve(fileURLToPath(new URL('.', import.meta.url)), 'how-it-works.html'),
+          solutions: resolve(fileURLToPath(new URL('.', import.meta.url)), 'solutions.html'),
+          pricing: resolve(fileURLToPath(new URL('.', import.meta.url)), 'pricing.html'),
+          demo: resolve(fileURLToPath(new URL('.', import.meta.url)), 'demo.html'),
+          support: resolve(fileURLToPath(new URL('.', import.meta.url)), 'support.html'),
+          'legal/privacy': resolve(fileURLToPath(new URL('.', import.meta.url)), 'legal/privacy.html'),
+          'legal/terms': resolve(fileURLToPath(new URL('.', import.meta.url)), 'legal/terms.html')
+        }
       }
-    }
   },
   
   // CSS configuration
