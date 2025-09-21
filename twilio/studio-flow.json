@@ -1,0 +1,615 @@
+{
+  "description": "callwaiting.ai Studio Flow",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "event": "incomingMessage"
+        },
+        {
+          "event": "incomingCall",
+          "next": "WelcomeMessage"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "WelcomeMessage",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "GatherOptions",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Welcome to our automated service. Please listen carefully to the following options.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 200,
+          "y": 300
+        }
+      }
+    },
+    {
+      "name": "GatherOptions",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "HandleOption1",
+          "event": "keypress"
+        },
+        {
+          "next": "HandleOption2",
+          "event": "speech"
+        },
+        {
+          "next": "RepeatMenu",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "say": "Press 1 to place an order. Press 2 to book an appointment. Press 3 to leave a voicemail. Press 4 for more information.",
+        "voice": "Polly.Joanna",
+        "numDigits": 1,
+        "timeout": 5,
+        "gatherLanguage": "en-US",
+        "offset": {
+          "x": 200,
+          "y": 500
+        }
+      }
+    },
+    {
+      "name": "HandleOption1",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "OrderFlow",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 1",
+              "arguments": [
+                "{{Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "next": "HandleOption2",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 2",
+              "arguments": [
+                "{{Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "next": "HandleOption3",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 3",
+              "arguments": [
+                "{{Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "next": "HandleOption4",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 4",
+              "arguments": [
+                "{{Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "next": "InvalidOption",
+          "event": "noMatch"
+        }
+      ],
+      "properties": {
+        "input": "{{Digits}}",
+        "offset": {
+          "x": 200,
+          "y": 700
+        }
+      }
+    },
+    {
+      "name": "OrderFlow",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "CollectOrderDetails",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Please provide your order details after the beep. When you're finished, press the pound key.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 0,
+          "y": 900
+        }
+      }
+    },
+    {
+      "name": "CollectOrderDetails",
+      "type": "record-voicemail",
+      "transitions": [
+        {
+          "next": "SendOrderToAPI",
+          "event": "recordingComplete"
+        },
+        {
+          "next": "RecordingError",
+          "event": "recordingError"
+        }
+      ],
+      "properties": {
+        "trim": "do-not-trim",
+        "transcribe": true,
+        "transcribeCallbackUrl": "https://api.callwaiting.ai/api/ivr/handle",
+        "transcribeCallbackMethod": "POST",
+        "maxLength": 120,
+        "finishOnKey": "#",
+        "offset": {
+          "x": 0,
+          "y": 1100
+        }
+      }
+    },
+    {
+      "name": "SendOrderToAPI",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "OrderConfirmation",
+          "event": "success"
+        },
+        {
+          "next": "OrderError",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "url": "https://api.callwaiting.ai/api/ivr/handle",
+        "method": "POST",
+        "contentType": "application/json",
+        "parameters": [
+          {
+            "key": "path",
+            "value": "order"
+          },
+          {
+            "key": "recording_url",
+            "value": "{{RecordingUrl}}"
+          },
+          {
+            "key": "transcript",
+            "value": "{{TranscriptionText}}"
+          },
+          {
+            "key": "caller_phone",
+            "value": "{{From}}"
+          }
+        ],
+        "offset": {
+          "x": 0,
+          "y": 1300
+        }
+      }
+    },
+    {
+      "name": "OrderConfirmation",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Thank you for your order. We will send you a payment link shortly. Goodbye.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 0,
+          "y": 1500
+        }
+      }
+    },
+    {
+      "name": "HandleOption2",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "CollectBookingDetails",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Please provide your booking details after the beep. When you're finished, press the pound key.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 200,
+          "y": 900
+        }
+      }
+    },
+    {
+      "name": "CollectBookingDetails",
+      "type": "record-voicemail",
+      "transitions": [
+        {
+          "next": "SendBookingToAPI",
+          "event": "recordingComplete"
+        },
+        {
+          "next": "RecordingError",
+          "event": "recordingError"
+        }
+      ],
+      "properties": {
+        "trim": "do-not-trim",
+        "transcribe": true,
+        "transcribeCallbackUrl": "https://api.callwaiting.ai/api/ivr/handle",
+        "transcribeCallbackMethod": "POST",
+        "maxLength": 120,
+        "finishOnKey": "#",
+        "offset": {
+          "x": 200,
+          "y": 1100
+        }
+      }
+    },
+    {
+      "name": "SendBookingToAPI",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "BookingConfirmation",
+          "event": "success"
+        },
+        {
+          "next": "BookingError",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "url": "https://api.callwaiting.ai/api/ivr/handle",
+        "method": "POST",
+        "contentType": "application/json",
+        "parameters": [
+          {
+            "key": "path",
+            "value": "booking"
+          },
+          {
+            "key": "recording_url",
+            "value": "{{RecordingUrl}}"
+          },
+          {
+            "key": "transcript",
+            "value": "{{TranscriptionText}}"
+          },
+          {
+            "key": "caller_phone",
+            "value": "{{From}}"
+          }
+        ],
+        "offset": {
+          "x": 200,
+          "y": 1300
+        }
+      }
+    },
+    {
+      "name": "BookingConfirmation",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Thank you for your booking request. We will check availability and send you time slots shortly. Goodbye.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 200,
+          "y": 1500
+        }
+      }
+    },
+    {
+      "name": "HandleOption3",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "CollectVoicemail",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Please leave your message after the beep. When you're finished, press the pound key.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 400,
+          "y": 900
+        }
+      }
+    },
+    {
+      "name": "CollectVoicemail",
+      "type": "record-voicemail",
+      "transitions": [
+        {
+          "next": "SendVoicemailToAPI",
+          "event": "recordingComplete"
+        },
+        {
+          "next": "RecordingError",
+          "event": "recordingError"
+        }
+      ],
+      "properties": {
+        "trim": "do-not-trim",
+        "transcribe": true,
+        "transcribeCallbackUrl": "https://api.callwaiting.ai/api/ivr/handle",
+        "transcribeCallbackMethod": "POST",
+        "maxLength": 120,
+        "finishOnKey": "#",
+        "offset": {
+          "x": 400,
+          "y": 1100
+        }
+      }
+    },
+    {
+      "name": "SendVoicemailToAPI",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "VoicemailConfirmation",
+          "event": "success"
+        },
+        {
+          "next": "VoicemailError",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "url": "https://api.callwaiting.ai/api/ivr/handle",
+        "method": "POST",
+        "contentType": "application/json",
+        "parameters": [
+          {
+            "key": "path",
+            "value": "voicemail"
+          },
+          {
+            "key": "recording_url",
+            "value": "{{RecordingUrl}}"
+          },
+          {
+            "key": "transcript",
+            "value": "{{TranscriptionText}}"
+          },
+          {
+            "key": "caller_phone",
+            "value": "{{From}}"
+          }
+        ],
+        "offset": {
+          "x": 400,
+          "y": 1300
+        }
+      }
+    },
+    {
+      "name": "VoicemailConfirmation",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Thank you for your message. We will transcribe it and notify the team. Goodbye.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 400,
+          "y": 1500
+        }
+      }
+    },
+    {
+      "name": "HandleOption4",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "InformationMessage",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "This is an automated service. For more information, please visit our website or send us an email.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 600,
+          "y": 900
+        }
+      }
+    },
+    {
+      "name": "InformationMessage",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "ReturnToMenu",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Press any key to return to the main menu.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 600,
+          "y": 1100
+        }
+      }
+    },
+    {
+      "name": "ReturnToMenu",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "GatherOptions",
+          "event": "keypress"
+        },
+        {
+          "next": "GatherOptions",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "timeout": 3,
+        "offset": {
+          "x": 600,
+          "y": 1300
+        }
+      }
+    },
+    {
+      "name": "InvalidOption",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "RepeatMenu",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Invalid option. Please try again.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 800,
+          "y": 900
+        }
+      }
+    },
+    {
+      "name": "RepeatMenu",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "GatherOptions",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Let's try that again.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 800,
+          "y": 1100
+        }
+      }
+    },
+    {
+      "name": "RecordingError",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Sorry, there was an error recording your message. Please try again later. Goodbye.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 1000,
+          "y": 1100
+        }
+      }
+    },
+    {
+      "name": "OrderError",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Sorry, there was an error processing your order. We will contact you shortly. Goodbye.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 0,
+          "y": 1700
+        }
+      }
+    },
+    {
+      "name": "BookingError",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Sorry, there was an error processing your booking request. We will contact you shortly. Goodbye.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 200,
+          "y": 1700
+        }
+      }
+    },
+    {
+      "name": "VoicemailError",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "say": "Sorry, there was an error processing your voicemail. We will contact you shortly. Goodbye.",
+        "voice": "Polly.Joanna",
+        "offset": {
+          "x": 400,
+          "y": 1700
+        }
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}

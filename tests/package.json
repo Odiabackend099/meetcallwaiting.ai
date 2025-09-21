@@ -1,0 +1,20 @@
+{
+  "name": "callwaiting-ai-tests",
+  "version": "1.0.0",
+  "description": "End-to-end tests for Callwaiting AI",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test tests/e2e/api.test.js",
+    "test:webhooks": "playwright test tests/e2e/webhooks.test.js",
+    "test:onboarding": "playwright test tests/e2e/onboarding.test.js",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}

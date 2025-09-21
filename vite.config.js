@@ -1,0 +1,57 @@
+// vite.config.js
+import { defineConfig } from 'vite';
+import { resolve } from 'path';
+import { fileURLToPath, URL } from 'node:url';
+
+export default defineConfig({
+  // Server configuration for development
+  server: {
+    port: 3000,
+    open: true, // Automatically open browser on server start
+    host: '0.0.0.0', // Allow external connections
+    // Allow serving files from parent directory
+    fs: {
+      allow: ['..', '.']
+    },
+    // Custom middleware to serve HTML files
+    middlewareMode: false,
+  },
+  
+  // Root directory for file serving
+  root: './',
+  
+  // Public directory for static assets
+  publicDir: 'public',
+  
+  // Build configuration for production
+  build: {
+    outDir: 'dist', // Output directory
+    // Minify output
+    minify: false,
+    // Generate source maps
+    sourcemap: true,
+    // Include HTML files in build
+    rollupOptions: {
+      input: {
+        main: resolve(fileURLToPath(new URL('.', import.meta.url)), 'index.html'),
+        onboarding: resolve(fileURLToPath(new URL('.', import.meta.url)), 'onboarding.html'),
+        dashboard: resolve(fileURLToPath(new URL('.', import.meta.url)), 'business-dashboard.html'),
+        test: resolve(fileURLToPath(new URL('.', import.meta.url)), 'production-ready-test.html'),
+        userTest: resolve(fileURLToPath(new URL('.', import.meta.url)), 'business-user-test.html')
+      }
+    }
+  },
+  
+  // CSS configuration
+  css: {
+    devSourcemap: true,
+  },
+  
+  // Base configuration for proper routing
+  base: '/',
+  
+  // Define global constants
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+  }
+});

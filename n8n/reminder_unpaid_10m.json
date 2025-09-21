@@ -1,0 +1,156 @@
+{
+  "name": "reminder_unpaid_10m",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 10,
+              "unit": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/orders/pending",
+        "authentication": "none",
+        "options": {
+          "queryParameters": {
+            "status": "pending_payment",
+            "older_than_minutes": 10
+          }
+        }
+      },
+      "id": "2",
+      "name": "Fetch Pending Orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/notifications/send-sms",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"to\": \"={{ $json[\"customer_phone\"] }}\",\n  \"message\": \"={{ \\\"Friendly reminder: Please complete your payment at: \\\" + $json[\\\"payment_link_url\\\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "3",
+      "name": "Send SMS Reminder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "order_id",
+              "value": "={{ $json[\"id\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4",
+      "name": "Set Order ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "PATCH",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/orders/{{ $json[\"order_id\"] }}/status",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"status\": \"reminder_sent\"\n}",
+        "options": {}
+      },
+      "id": "5",
+      "name": "Update Order Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Pending Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Pending Orders": {
+      "main": [
+        [
+          {
+            "node": "Send SMS Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send SMS Reminder": {
+      "main": [
+        [
+          {
+            "node": "Set Order ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Order ID": {
+      "main": [
+        [
+          {
+            "node": "Update Order Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1"
+}

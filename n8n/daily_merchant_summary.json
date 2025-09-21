@@ -1,0 +1,409 @@
+{
+  "meta": {
+    "instanceId": "callwaiting-ai-production"
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "daily-trigger",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_BASE_URL}}/api/merchants",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.N8N_API_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-merchants",
+      "name": "Get Merchants",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "process-each-merchant",
+      "name": "Process Each Merchant",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_BASE_URL}}/api/orders/merchant/{{$json.id}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.N8N_API_KEY}}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "paid"
+            },
+            {
+              "name": "since",
+              "value": "={{new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-daily-orders",
+      "name": "Get Daily Orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        900,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_BASE_URL}}/api/bookings/merchant/{{$json.id}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.N8N_API_KEY}}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "confirmed"
+            },
+            {
+              "name": "since",
+              "value": "={{new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-daily-bookings",
+      "name": "Get Daily Bookings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_BASE_URL}}/api/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.N8N_API_KEY}}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "twilio_voice_webhook"
+            },
+            {
+              "name": "merchant_id",
+              "value": "={{$json.id}}"
+            },
+            {
+              "name": "since",
+              "value": "={{new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-daily-calls",
+      "name": "Get Daily Calls",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        900,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate daily summary statistics\nconst merchant = $input.first().json;\nconst orders = $('Get Daily Orders').first().json.orders || [];\nconst bookings = $('Get Daily Bookings').first().json.bookings || [];\nconst calls = $('Get Daily Calls').first().json.events || [];\n\n// Calculate totals\nconst totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);\nconst totalOrders = orders.length;\nconst totalBookings = bookings.length;\nconst totalCalls = calls.length;\n\n// Calculate average order value\nconst avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;\n\n// Get top items from orders\nconst allItems = orders.flatMap(order => order.items || []);\nconst itemCounts = {};\nallItems.forEach(item => {\n  itemCounts[item.name] = (itemCounts[item.name] || 0) + item.quantity;\n});\nconst topItems = Object.entries(itemCounts)\n  .sort(([,a], [,b]) => b - a)\n  .slice(0, 5)\n  .map(([name, count]) => ({ name, count }));\n\n// Get upcoming bookings (next 7 days)\nconst nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);\nconst upcomingBookings = bookings.filter(booking => \n  new Date(booking.starts_at) <= nextWeek && \n  new Date(booking.starts_at) > new Date()\n);\n\n// Generate summary\nconst summary = {\n  merchant: {\n    id: merchant.id,\n    name: merchant.name,\n    email: merchant.billing_email\n  },\n  date: new Date().toISOString().split('T')[0],\n  stats: {\n    totalRevenue: totalRevenue.toFixed(2),\n    totalOrders,\n    totalBookings,\n    totalCalls,\n    avgOrderValue: avgOrderValue.toFixed(2)\n  },\n  topItems,\n  upcomingBookings: upcomingBookings.slice(0, 5),\n  period: {\n    start: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),\n    end: new Date().toISOString()\n  }\n};\n\nreturn [{ json: summary }];"
+      },
+      "id": "calculate-summary",
+      "name": "Calculate Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.stats.totalCalls}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "check-activity",
+      "name": "Check Activity",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_BASE_URL}}/api/notifications/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.N8N_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "jsonBody": "={{ {\n  \"to\": $json.merchant.email,\n  \"subject\": `Daily Summary for ${$json.merchant.name} - ${$json.date}`,\n  \"html\": `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #01C6D6;\">Daily Summary for ${$json.merchant.name}</h1>\n      <p style=\"color: #666;\">Report for ${$json.date}</p>\n      \n      <div style=\"background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n        <h2 style=\"margin-top: 0;\">📊 Today's Performance</h2>\n        <div style=\"display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;\">\n          <div>\n            <strong>💰 Revenue:</strong> $${$json.stats.totalRevenue}<br>\n            <strong>🛒 Orders:</strong> ${$json.stats.totalOrders}\n          </div>\n          <div>\n            <strong>📅 Bookings:</strong> ${$json.stats.totalBookings}<br>\n            <strong>📞 Calls:</strong> ${$json.stats.totalCalls}\n          </div>\n        </div>\n        <p><strong>📈 Average Order Value:</strong> $${$json.stats.avgOrderValue}</p>\n      </div>\n      \n      ${$json.topItems.length > 0 ? `\n        <div style=\"background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n          <h3>🔥 Top Items Today</h3>\n          <ul>\n            ${$json.topItems.map(item => `<li>${item.name} (${item.count} sold)</li>`).join('')}\n          </ul>\n        </div>\n      ` : ''}\n      \n      ${$json.upcomingBookings.length > 0 ? `\n        <div style=\"background: #fff3e0; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n          <h3>📅 Upcoming Appointments</h3>\n          <ul>\n            ${$json.upcomingBookings.map(booking => `\n              <li>\n                <strong>${booking.service}</strong><br>\n                ${new Date(booking.starts_at).toLocaleDateString()} at ${new Date(booking.starts_at).toLocaleTimeString()}\n              </li>\n            `).join('')}\n          </ul>\n        </div>\n      ` : ''}\n      \n      <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"${$env.DASHBOARD_URL}\" style=\"background: #01C6D6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;\">View Full Dashboard</a>\n      </div>\n      \n      <p style=\"color: #999; font-size: 12px; text-align: center;\">\n        This is an automated daily summary from Callwaiting AI.<br>\n        To unsubscribe or modify preferences, visit your dashboard.\n      </p>\n    </div>\n  `,\n  \"merchant_id\": $json.merchant.id,\n  \"type\": \"daily_summary\"\n} }}",
+        "options": {}
+      },
+      "id": "send-summary-email",
+      "name": "Send Summary Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_BASE_URL}}/api/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.N8N_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "jsonBody": "={{ {\n  \"type\": \"daily_summary_sent\",\n  \"ref_id\": $json.merchant.id,\n  \"request_id\": \"n8n-summary-\" + Date.now(),\n  \"payload\": {\n    \"merchant_id\": $json.merchant.id,\n    \"date\": $json.date,\n    \"stats\": $json.stats,\n    \"email_sent\": true\n  },\n  \"created_at\": new Date().toISOString()\n} }}",
+        "options": {}
+      },
+      "id": "log-summary-sent",
+      "name": "Log Summary Sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1780,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Merchants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Merchants": {
+      "main": [
+        [
+          {
+            "node": "Process Each Merchant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Each Merchant": {
+      "main": [
+        [
+          {
+            "node": "Get Daily Orders",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Daily Bookings",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Daily Calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Daily Orders": {
+      "main": [
+        [
+          {
+            "node": "Calculate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Daily Bookings": {
+      "main": [
+        [
+          {
+            "node": "Calculate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Daily Calls": {
+      "main": [
+        [
+          {
+            "node": "Calculate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Summary": {
+      "main": [
+        [
+          {
+            "node": "Check Activity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Activity": {
+      "main": [
+        [
+          {
+            "node": "Send Summary Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Summary Email": {
+      "main": [
+        [
+          {
+            "node": "Log Summary Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-15T12:00:00.000Z",
+  "versionId": "daily-summary-v1"
+}
+
+
+

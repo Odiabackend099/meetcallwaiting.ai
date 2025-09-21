@@ -1,0 +1,175 @@
+{
+  "name": "stripe_webhook_router",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "stripe-webhook",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "stripe_webhook_router"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/webhooks/stripe",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={{ $json }}",
+        "headers": {
+          "header": [
+            {
+              "name": "Stripe-Signature",
+              "value": "={{ $request.headers['stripe-signature'] }}"
+            },
+            {
+              "name": "X-Request-ID",
+              "value": "={{ $parameter[\"requestId\"] }}"
+            }
+          ]
+        },
+        "options": {
+          "responseFormat": "json"
+        }
+      },
+      "id": "2",
+      "name": "Forward to API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json[\"type\"] }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equal",
+              "value2": "checkout.session.completed",
+              "output": 0
+            },
+            {
+              "operation": "equal",
+              "value2": "payment_intent.succeeded",
+              "output": 1
+            }
+          ]
+        }
+      },
+      "id": "3",
+      "name": "Event Type Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/notifications/merchant-payment",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"merchant_id\": \"={{ $json[\"data\"][\"object\"][\"metadata\"][\"merchant_id\"] }}\",\n  \"event_type\": \"payment_completed\",\n  \"amount\": \"={{ $json[\"data\"][\"object\"][\"amount_total\"] }}\",\n  \"currency\": \"={{ $json[\"data\"][\"object\"][\"currency\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "4",
+      "name": "Notify Merchant Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        850,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/notifications/customer-payment",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"customer_phone\": \"={{ $json[\"data\"][\"object\"][\"customer_details\"][\"phone\"] }}\",\n  \"event_type\": \"payment_completed\",\n  \"amount\": \"={{ $json[\"data\"][\"object\"][\"amount_total\"] }}\",\n  \"currency\": \"={{ $json[\"data\"][\"object\"][\"currency\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "5",
+      "name": "Notify Customer Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Forward to API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forward to API": {
+      "main": [
+        [
+          {
+            "node": "Event Type Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Type Router": {
+      "main": [
+        [
+          {
+            "node": "Notify Merchant Payment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Customer Payment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Merchant Payment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Customer Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1"
+}

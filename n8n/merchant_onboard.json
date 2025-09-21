@@ -1,0 +1,139 @@
+{
+  "name": "merchant_onboard",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/merchants/create",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={{ $json }}",
+        "options": {}
+      },
+      "id": "2",
+      "name": "Create Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/number-pool/allocate",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"merchant_id\": \"={{ $json[\"id\"] }}\",\n  \"region\": \"={{ $json[\"country\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "3",
+      "name": "Allocate Number",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"twilioBaseUrl\"] }}/Studio/Flows",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"FriendlyName\": \"={{ $json[\"name\"] }} Studio Flow\",\n  \"Status\": \"published\",\n  \"Definition\": {\n    \"description\": \"={{ $json[\"name\"] }} Studio Flow\",\n    \"states\": [],\n    \"initial_state\": \"Trigger\"\n  }\n}",
+        "options": {}
+      },
+      "id": "4",
+      "name": "Attach Studio Flow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/notifications/send",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"to\": \"={{ $json[\"billing_email\"] }}\",\n  \"subject\": \"Welcome to callwaiting.ai - Setup Complete\",\n  \"template\": \"onboarding_checklist\",\n  \"data\": {\n    \"merchant_name\": \"={{ $json[\"name\"] }}\",\n    \"assigned_number\": \"={{ $json[\"number\"] }}\",\n    \"forwarding_instructions\": \"Please configure your phone number to forward calls to the assigned number.\"\n  }\n}",
+        "options": {}
+      },
+      "id": "5",
+      "name": "Send Onboarding Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Create Merchant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Merchant": {
+      "main": [
+        [
+          {
+            "node": "Allocate Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Allocate Number": {
+      "main": [
+        [
+          {
+            "node": "Attach Studio Flow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach Studio Flow": {
+      "main": [
+        [
+          {
+            "node": "Send Onboarding Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1"
+}

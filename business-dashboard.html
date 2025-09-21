@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callwaiting AI - Business Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #01C6D6 0%, #0A5AA8 50%, #16E0C1 100%); color: white; padding: 1rem; }
+        .header h1 { font-size: 1.5rem; }
+        .header p { opacity: 0.9; margin-top: 0.5rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-card { text-align: center; }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #01C6D6; }
+        .stat-label { color: #666; margin-top: 0.5rem; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; text-decoration: none; display: inline-block; text-align: center; }
+        .btn-primary { background: #01C6D6; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .status-connected { color: #28a745; font-weight: bold; }
+        .status-disconnected { color: #dc3545; font-weight: bold; }
+        .activity-list { max-height: 300px; overflow-y: auto; }
+        .activity-item { padding: 1rem; border-bottom: 1px solid #eee; }
+        .activity-time { color: #666; font-size: 0.875rem; }
+        .tabs { border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+        .tab { padding: 0.75rem 1rem; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { border-bottom-color: #01C6D6; color: #01C6D6; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .phone-number { font-family: 'Courier New', monospace; font-size: 1.25rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; }
+        .setup-checklist { list-style: none; }
+        .setup-checklist li { padding: 0.5rem 0; }
+        .setup-checklist .done::before { content: '✅ '; }
+        .setup-checklist .pending::before { content: '⏳ '; }
+        .setup-checklist .error::before { content: '❌ '; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🏢 Business Dashboard</h1>
+            <p id="business-name">Loading business information...</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Key Metrics -->
+        <div class="grid grid-4" style="margin-bottom: 2rem;">
+            <div class="card stat-card">
+                <div class="stat-number" id="total-calls">--</div>
+                <div class="stat-label">Total Calls Today</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-number" id="orders-captured">--</div>
+                <div class="stat-label">Orders Captured</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-number" id="bookings-made">--</div>
+                <div class="stat-label">Bookings Made</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-number" id="revenue-today">$--</div>
+                <div class="stat-label">Revenue Today</div>
+            </div>
+        </div>
+
+        <div class="grid grid-2">
+            <!-- Setup Status -->
+            <div class="card">
+                <h3>🔧 Setup Status</h3>
+                <ul class="setup-checklist" id="setup-status">
+                    <li class="pending">Business Account Created</li>
+                    <li class="pending">AI Phone Number Assigned</li>
+                    <li class="pending">Payment Provider Connected</li>
+                    <li class="pending">Calendar Integrated</li>
+                    <li class="pending">Voice AI Tested</li>
+                    <li class="pending">Live and Capturing Calls</li>
+                </ul>
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-primary" onclick="runSetupWizard()">Complete Setup</button>
+                </div>
+            </div>
+
+            <!-- AI Phone Number -->
+            <div class="card">
+                <h3>📞 Your AI Phone Number</h3>
+                <div class="phone-number" id="ai-phone-number">
+                    Loading...
+                </div>
+                <p style="margin: 1rem 0;">Forward your missed calls to this number to capture orders and bookings automatically.</p>
+                <div>
+                    <button class="btn btn-secondary" onclick="showCallForwarding()">Setup Call Forwarding</button>
+                    <button class="btn btn-warning" onclick="testAI()">Test AI</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs for detailed views -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('activity')">Recent Activity</button>
+                <button class="tab" onclick="showTab('orders')">Orders</button>
+                <button class="tab" onclick="showTab('bookings')">Bookings</button>
+                <button class="tab" onclick="showTab('settings')">Settings</button>
+            </div>
+
+            <div id="activity-tab" class="tab-content active">
+                <h4>📋 Recent Activity</h4>
+                <div class="activity-list" id="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-time">Today, 2:30 PM</div>
+                        <div>Customer called +1 (555) 123-4567 - Order placed for $24.99</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-time">Today, 1:15 PM</div>
+                        <div>Appointment booked - Haircut scheduled for tomorrow 3 PM</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-time">Today, 11:45 AM</div>
+                        <div>Customer left voicemail - Transcript available</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="orders-tab" class="tab-content">
+                <h4>🛒 Orders</h4>
+                <p>Track all orders captured by your AI assistant.</p>
+                <table style="width: 100%; margin-top: 1rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <th style="text-align: left; padding: 0.5rem;">Time</th>
+                            <th style="text-align: left; padding: 0.5rem;">Customer</th>
+                            <th style="text-align: left; padding: 0.5rem;">Amount</th>
+                            <th style="text-align: left; padding: 0.5rem;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table">
+                        <tr>
+                            <td style="padding: 0.5rem;">2:30 PM</td>
+                            <td style="padding: 0.5rem;">+1 (555) 123-4567</td>
+                            <td style="padding: 0.5rem;">$24.99</td>
+                            <td style="padding: 0.5rem;"><span class="status-connected">Paid</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem;">1:45 PM</td>
+                            <td style="padding: 0.5rem;">+1 (555) 987-6543</td>
+                            <td style="padding: 0.5rem;">$18.50</td>
+                            <td style="padding: 0.5rem;"><span class="status-connected">Paid</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="bookings-tab" class="tab-content">
+                <h4>📅 Bookings</h4>
+                <p>Manage appointments booked through your AI assistant.</p>
+                <div style="margin-top: 1rem;" id="bookings-list">
+                    <div class="activity-item">
+                        <div class="activity-time">Tomorrow, 3:00 PM</div>
+                        <div><strong>Haircut & Color</strong> - Customer: +1 (555) 123-4567</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-time">Tuesday, 10:30 AM</div>
+                        <div><strong>Consultation</strong> - Customer: +1 (555) 456-7890</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-tab" class="tab-content">
+                <h4>⚙️ Settings</h4>
+                <div class="grid grid-2">
+                    <div>
+                        <h5>Payment Provider</h5>
+                        <p>Status: <span class="status-connected" id="payment-status">Connected</span></p>
+                        <button class="btn btn-secondary">Manage Stripe</button>
+                    </div>
+                    <div>
+                        <h5>Calendar Integration</h5>
+                        <p>Status: <span class="status-connected" id="calendar-status">Connected</span></p>
+                        <button class="btn btn-secondary">Manage Calendar</button>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h5>Business Hours</h5>
+                    <p>Monday - Friday: 9 AM - 6 PM</p>
+                    <p>Saturday: 10 AM - 4 PM</p>
+                    <p>Sunday: Closed</p>
+                    <button class="btn btn-secondary">Update Hours</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-success" onclick="goLive()">🚀 Go Live</button>
+            <button class="btn btn-primary" onclick="viewAnalytics()">📊 View Analytics</button>
+            <button class="btn btn-secondary" onclick="getSupport()">🆘 Get Support</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8787';
+        let currentBusiness = null;
+
+        // Load business data
+        async function loadBusinessData() {
+            try {
+                // Get business info (mock for now)
+                currentBusiness = {
+                    name: "Joe's Pizza",
+                    phone: "+1 (202) 555-0199",
+                    industry: "Restaurant/QSR"
+                };
+
+                document.getElementById('business-name').textContent = currentBusiness.name;
+                document.getElementById('ai-phone-number').textContent = currentBusiness.phone;
+
+                // Update stats (mock data)
+                document.getElementById('total-calls').textContent = '12';
+                document.getElementById('orders-captured').textContent = '8';
+                document.getElementById('bookings-made').textContent = '3';
+                document.getElementById('revenue-today').textContent = '$247.50';
+
+                // Update setup status
+                updateSetupStatus();
+
+            } catch (error) {
+                console.error('Error loading business data:', error);
+            }
+        }
+
+        function updateSetupStatus() {
+            const checks = document.querySelectorAll('#setup-status li');
+            checks[0].className = 'done'; // Business account
+            checks[1].className = 'done'; // Phone number
+            checks[2].className = 'done'; // Payment
+            checks[3].className = 'done'; // Calendar
+            checks[4].className = 'done'; // Voice AI
+            checks[5].className = 'pending'; // Live status
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function runSetupWizard() {
+            alert('Opening setup wizard...\n\nThis would guide you through:\n1. Verifying phone number\n2. Testing payment flow\n3. Calendar sync check\n4. Voice AI test call\n5. Going live');
+        }
+
+        function showCallForwarding() {
+            alert(`Call Forwarding Setup:\n\n1. On your business phone, dial *72\n2. Enter your AI number: ${currentBusiness.phone}\n3. Wait for confirmation tone\n4. Hang up\n\nNow when your line is busy or unanswered, calls will forward to your AI assistant!`);
+        }
+
+        function testAI() {
+            alert(`Testing AI Assistant...\n\nCall ${currentBusiness.phone} from any phone to test:\n\n• Press 1 for orders\n• Press 2 for bookings\n• Or leave a voicemail\n\nThe AI will respond professionally and handle the request!`);
+        }
+
+        function goLive() {
+            if (confirm('Ready to go live?\n\nThis will:\n• Activate your AI assistant\n• Start capturing missed calls\n• Process orders and bookings\n• Send you notifications\n\nContinue?')) {
+                alert('🚀 Congratulations!\n\nYour Callwaiting AI is now LIVE!\n\n✅ AI assistant active\n✅ Capturing missed calls\n✅ Processing orders & bookings\n✅ Sending notifications\n\nYour business will never miss another opportunity!');
+                
+                // Update status
+                const liveStatus = document.querySelector('#setup-status li:last-child');
+                liveStatus.className = 'done';
+                liveStatus.textContent = 'Live and Capturing Calls';
+            }
+        }
+
+        function viewAnalytics() {
+            alert('Analytics Dashboard\n\n📊 Performance Summary:\n• 94% call capture rate\n• $2,450 revenue this week\n• 15 avg. response time (seconds)\n• 87% customer satisfaction\n\nDetailed analytics coming soon!');
+        }
+
+        function getSupport() {
+            alert('🆘 Support Options:\n\n📧 Email: support@callwaitingai.com\n💬 Chat: Available 24/7\n📞 Phone: +1 (800) CALL-AI\n📚 Help Center: docs.callwaitingai.com\n\nWe\'re here to help you succeed!');
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadBusinessData);
+    </script>
+</body>
+</html>
+
+
+

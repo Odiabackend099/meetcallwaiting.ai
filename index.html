@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callwaiting AI — Voice AI for missed calls, bookings & paid orders</title>
+    <meta name="description" content="Forward your unanswered or busy calls to AI that books real appointments, takes orders, and sends secure payment links.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #01C6D6;
+            --primary-dark: #0A5AA8;
+            --primary-light: #6FE7F2;
+            --accent: #16E0C1;
+            --navy-900: #0B2142;
+            --navy-700: #123A69;
+            --slate-600: #64748B;
+            --slate-100: #F1F5F9;
+            --white: #FFFFFF;
+            --danger: #E11D48;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --gradient-hero: linear-gradient(135deg, #01C6D6 0%, #0A5AA8 50%, #16E0C1 100%);
+            --shadow-soft: 0 10px 30px rgba(1, 198, 214, 0.15);
+            --shadow-hard: 0 12px 40px rgba(11, 33, 66, 0.35);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--navy-900);
+            background-color: var(--slate-100);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: var(--gradient-hero);
+            backdrop-filter: blur(12px);
+            padding: 16px 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .cta-button {
+            background-color: var(--white);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-hard);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(11, 33, 66, 0.45);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            background: var(--gradient-hero);
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .hero-heading {
+            font-size: 48px;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .hero-subheading {
+            font-size: 20px;
+            margin-bottom: 32px;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .primary-button {
+            background-color: var(--white);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 16px 32px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-hard);
+            text-decoration: none;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(11, 33, 66, 0.45);
+        }
+
+        .secondary-button {
+            background-color: var(--navy-700);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 16px 32px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .secondary-button:hover {
+            background-color: var(--navy-900);
+            transform: translateY(-3px);
+        }
+
+        .trust-section {
+            margin-top: 40px;
+        }
+
+        .trust-heading {
+            font-size: 16px;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        .trust-logos {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .trust-logo {
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .hero-art {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* AI Avatar */
+        .ai-avatar {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ai-avatar-inner {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(1, 198, 214, 0.4);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .avatar-face {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .avatar-eyes {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .avatar-eye {
+            width: 24px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--navy-900);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-eye::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--white);
+            top: 8px;
+            left: 8px;
+            animation: blink 5s infinite;
+        }
+
+        .avatar-mouth {
+            width: 60px;
+            height: 24px;
+            border-radius: 0 0 30px 30px;
+            background: var(--navy-900);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-mouth::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            border-radius: 0 0 20px 20px;
+            background: var(--accent);
+            bottom: -10px;
+            left: 10px;
+            animation: talk 1.5s infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes blink {
+            0%, 45%, 55%, 100% { height: 36px; }
+            48%, 52% { height: 8px; }
+        }
+
+        @keyframes talk {
+            0%, 100% { height: 20px; }
+            50% { height: 25px; }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background-color: var(--white);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 60px;
+            color: var(--navy-900);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hard);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .feature-title {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .feature-body {
+            color: var(--slate-600);
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 100px 0;
+            background-color: var(--slate-100);
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            min-width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-hero);
+            color: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-label {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            color: var(--slate-600);
+            margin-bottom: 16px;
+        }
+
+        .step-cta {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Conversion Banner */
+        .conversion-banner {
+            padding: 80px 0;
+            background: var(--gradient-hero);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .banner-title {
+            font-size: 36px;
+            margin-bottom: 32px;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--navy-900);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 12px;
+        }
+
+        .footer-link a {
+            color: var(--slate-100);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: var(--accent);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--slate-100);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .trust-logos {
+                justify-content: center;
+            }
+
+            .hero-heading {
+                font-size: 36px;
+            }
+
+            .hero-subheading {
+                font-size: 18px;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-heading {
+                font-size: 32px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .banner-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="logo">Callwaiting AI</a>
+            <div class="nav-links">
+                <a href="/how-it-works" class="nav-link">How it Works</a>
+                <a href="/solutions" class="nav-link">Solutions</a>
+                <a href="/pricing" class="nav-link">Pricing</a>
+                <a href="/demo" class="nav-link">Demo</a>
+            </div>
+            <a href="/onboarding" class="cta-button">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1 class="hero-heading">Never miss a customer again.</h1>
+                <p class="hero-subheading">When your line is busy or unanswered, our Voice AI captures the call, books the slot, or takes the order—then sends payment and receipts automatically.</p>
+                <div class="hero-buttons">
+                    <a href="/demo" class="primary-button">Try Live Demo</a>
+                    <a href="/onboarding" class="secondary-button">Get Started Free</a>
+                </div>
+                <div class="trust-section">
+                    <p class="trust-heading">Works with</p>
+                    <div class="trust-logos">
+                        <span class="trust-logo">Stripe</span>
+                        <span class="trust-logo">Calendly</span>
+                        <span class="trust-logo">Google Calendar</span>
+                        <span class="trust-logo">Twilio</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-art">
+                <div class="ai-avatar">
+                    <div class="ai-avatar-inner">
+                        <div class="avatar-face">
+                            <div class="avatar-eyes">
+                                <div class="avatar-eye"></div>
+                                <div class="avatar-eye"></div>
+                            </div>
+                            <div class="avatar-mouth"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">What it does</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📞</div>
+                    <h3 class="feature-title">Answers missed calls</h3>
+                    <p class="feature-body">Auto-routes no-answer/busy calls to AI.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3 class="feature-title">Books appointments</h3>
+                    <p class="feature-body">Offers your actual availability and sends calendar invites.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛒</div>
+                    <h3 class="feature-title">Takes orders & payments</h3>
+                    <p class="feature-body">Sends secure Stripe Payment Links and receipts.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 class="feature-title">Consent & Compliance</h3>
+                    <p class="feature-body">STOP/HELP for SMS, clear recording disclosures.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How it works in 60 seconds</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-label">Forward when busy</h3>
+                        <p class="step-desc">Keep your public number. If no one answers, calls forward to your AI number.</p>
+                        <a href="/how-it-works#forwarding" class="step-cta">Show me the guide</a>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-label">AI handles the call</h3>
+                        <p class="step-desc">Caller picks 'Order' or 'Book'. AI collects info and confirms.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-label">Payment & confirmations</h3>
+                        <p class="step-desc">Stripe link or calendar invite sent instantly. You get alerts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conversion Banner -->
+    <section class="conversion-banner">
+        <div class="container">
+            <h2 class="banner-title">Start free — be live in 10 minutes</h2>
+            <a href="/onboarding" class="primary-button">Get Started</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Product</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/how-it-works">How it Works</a></li>
+                        <li class="footer-link"><a href="/solutions">Solutions</a></li>
+                        <li class="footer-link"><a href="/pricing">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/support">Support</a></li>
+                        <li class="footer-link"><a href="/legal/privacy">Privacy</a></li>
+                        <li class="footer-link"><a href="/legal/terms">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © Callwaiting AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

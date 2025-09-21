@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "create_merchant_profile",
+    "description": "Test the creation of a new merchant profile with valid and invalid data, ensuring required fields are validated and a merchant is created successfully with a 201 response."
+  },
+  {
+    "id": "TC002",
+    "title": "get_merchant_by_id",
+    "description": "Test retrieval of merchant details by merchant ID, verifying correct data is returned with a 200 response and handling of non-existent IDs."
+  },
+  {
+    "id": "TC003",
+    "title": "create_order",
+    "description": "Test order creation with valid merchant ID, items, and customer phone, ensuring order is created successfully and returns a 201 response."
+  },
+  {
+    "id": "TC004",
+    "title": "create_booking",
+    "description": "Test booking creation with required fields including merchant ID, customer phone, service, and start time, verifying successful booking creation with a 201 response."
+  },
+  {
+    "id": "TC005",
+    "title": "handle_stripe_webhook_events",
+    "description": "Test processing of Stripe webhook events with valid signature verification and idempotency, ensuring webhook events are handled correctly and return a 200 response."
+  },
+  {
+    "id": "TC006",
+    "title": "handle_paypal_webhook_events",
+    "description": "Test processing of PayPal webhook events with signature verification and idempotent handling, ensuring webhook events are processed successfully with a 200 response."
+  },
+  {
+    "id": "TC007",
+    "title": "handle_incoming_twilio_voice_calls",
+    "description": "Test handling of incoming Twilio voice calls, verifying correct TwiML response is returned for call routing and IVR interaction."
+  },
+  {
+    "id": "TC008",
+    "title": "allocate_phone_number_to_merchant",
+    "description": "Test allocation of a Twilio phone number to a merchant with valid merchant ID and optional region, ensuring number allocation succeeds with a 201 response."
+  },
+  {
+    "id": "TC009",
+    "title": "connect_payment_provider",
+    "description": "Test connecting a payment provider (Stripe or PayPal) to a merchant account, verifying required fields and successful connection with a 200 response."
+  },
+  {
+    "id": "TC010",
+    "title": "send_sms_notification",
+    "description": "Test sending SMS notifications via Twilio with valid recipient and message, ensuring SMS is sent successfully and returns a 200 response."
+  }
+]

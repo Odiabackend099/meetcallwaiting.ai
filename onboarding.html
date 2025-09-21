@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - Callwaiting AI</title>
+    <meta name="description" content="Be live in 10 minutes with Callwaiting AI. Create your account and start capturing missed calls today.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #01C6D6;
+            --primary-dark: #0A5AA8;
+            --primary-light: #6FE7F2;
+            --accent: #16E0C1;
+            --navy-900: #0B2142;
+            --navy-700: #123A69;
+            --slate-600: #64748B;
+            --slate-100: #F1F5F9;
+            --white: #FFFFFF;
+            --danger: #E11D48;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --gradient-hero: linear-gradient(135deg, #01C6D6 0%, #0A5AA8 50%, #16E0C1 100%);
+            --shadow-soft: 0 10px 30px rgba(1, 198, 214, 0.15);
+            --shadow-hard: 0 12px 40px rgba(11, 33, 66, 0.35);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--navy-900);
+            background-color: var(--slate-100);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: var(--gradient-hero);
+            backdrop-filter: blur(12px);
+            padding: 16px 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .cta-button {
+            background-color: var(--white);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-hard);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(11, 33, 66, 0.45);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 60px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .onboarding-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            padding: 40px;
+        }
+
+        .onboarding-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .onboarding-title {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: var(--navy-900);
+        }
+
+        .onboarding-subtitle {
+            font-size: 18px;
+            color: var(--slate-600);
+        }
+
+        /* Steps Indicator */
+        .steps-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .steps-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--slate-100);
+            z-index: 1;
+        }
+
+        .step-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--slate-100);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--slate-600);
+            transition: all 0.3s ease;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: var(--slate-600);
+            font-weight: 500;
+        }
+
+        .step-indicator.active .step-circle {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .step-indicator.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .step-indicator.completed .step-circle {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        /* Step Content */
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--navy-900);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(1, 198, 214, 0.2);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            background-color: var(--white);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/Polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .form-checkbox input {
+            margin-top: 4px;
+        }
+
+        .form-checkbox a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .form-checkbox a:hover {
+            text-decoration: underline;
+        }
+
+        .form-radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-radio {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-radio input {
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--slate-100);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Connect Panels */
+        .connect-panels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .connect-panel {
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .panel-name {
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+
+        .panel-copy {
+            color: var(--slate-600);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .panel-button {
+            background-color: var(--navy-700);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .panel-button:hover {
+            background-color: var(--navy-900);
+        }
+
+        /* Number Section */
+        .number-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .assigned-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 24px 0;
+            padding: 16px;
+            background: var(--slate-100);
+            border-radius: var(--radius-md);
+            display: inline-block;
+        }
+
+        .number-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .number-action {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .number-action:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        /* Test Buttons */
+        .test-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .test-button {
+            background: var(--navy-700);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .test-button:hover {
+            background: var(--navy-900);
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+        }
+
+        .nav-button {
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .prev-button {
+            background: var(--slate-100);
+            color: var(--navy-900);
+            border: none;
+        }
+
+        .prev-button:hover {
+            background: var(--slate-600);
+            color: var(--white);
+        }
+
+        .next-button {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .next-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hard);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--navy-900);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 12px;
+        }
+
+        .footer-link a {
+            color: var(--slate-100);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: var(--accent);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--slate-100);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .onboarding-container {
+                padding: 24px;
+            }
+
+            .onboarding-title {
+                font-size: 28px;
+            }
+
+            .step-title {
+                font-size: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="logo">Callwaiting AI</a>
+            <div class="nav-links">
+                <a href="/how-it-works" class="nav-link">How it Works</a>
+                <a href="/solutions" class="nav-link">Solutions</a>
+                <a href="/pricing" class="nav-link">Pricing</a>
+                <a href="/demo" class="nav-link">Demo</a>
+            </div>
+            <a href="/onboarding" class="cta-button">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="onboarding-container">
+                <div class="onboarding-header">
+                    <h1 class="onboarding-title">Be live in 10 minutes</h1>
+                    <p class="onboarding-subtitle">Set up your Callwaiting AI account and start capturing missed calls</p>
+                </div>
+
+                <!-- Steps Indicator -->
+                <div class="steps-indicator">
+                    <div class="step-indicator active" id="step-indicator-1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Account</div>
+                    </div>
+                    <div class="step-indicator" id="step-indicator-2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Business</div>
+                    </div>
+                    <div class="step-indicator" id="step-indicator-3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Connect</div>
+                    </div>
+                    <div class="step-indicator" id="step-indicator-4">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">Number</div>
+                    </div>
+                    <div class="step-indicator" id="step-indicator-5">
+                        <div class="step-circle">5</div>
+                        <div class="step-label">Services</div>
+                    </div>
+                    <div class="step-indicator" id="step-indicator-6">
+                        <div class="step-circle">6</div>
+                        <div class="step-label">Test</div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Account -->
+                <div class="step-content active" id="step-1">
+                    <h2 class="step-title">Create your account</h2>
+                    <form id="account-form">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Your name</label>
+                            <input type="text" id="name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Work email</label>
+                            <input type="email" id="email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="accept" required>
+                                <label for="accept">I agree to the <a href="/legal/terms" target="_blank">Terms</a></label>
+                            </div>
+                        </div>
+                        <div class="nav-buttons">
+                            <div></div> <!-- Empty div for spacing -->
+                            <button type="button" class="nav-button next-button" onclick="nextStep(1)">Continue</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: Business Profile -->
+                <div class="step-content" id="step-2">
+                    <h2 class="step-title">Business profile</h2>
+                    <form id="business-form">
+                        <div class="form-group">
+                            <label for="businessName" class="form-label">Business name</label>
+                            <input type="text" id="businessName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="industry" class="form-label">Industry</label>
+                            <select id="industry" class="form-select" required>
+                                <option value="">Select industry</option>
+                                <option value="Restaurant/QSR">Restaurant/QSR</option>
+                                <option value="Clinic/Salon">Clinic/Salon</option>
+                                <option value="Law/Consulting">Law/Consulting</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="country" class="form-label">Country</label>
+                            <select id="country" class="form-select" required>
+                                <option value="">Select country</option>
+                                <option value="US">United States</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="EU">European Union</option>
+                                <option value="NG">Nigeria</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="timezone" class="form-label">Timezone</label>
+                            <select id="timezone" class="form-select" required>
+                                <option value="">Select timezone</option>
+                                <option value="EST">Eastern Time (EST)</option>
+                                <option value="CST">Central Time (CST)</option>
+                                <option value="MST">Mountain Time (MST)</option>
+                                <option value="PST">Pacific Time (PST)</option>
+                                <option value="GMT">Greenwich Mean Time (GMT)</option>
+                                <option value="WAT">West Africa Time (WAT)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency" class="form-label">Currency</label>
+                            <select id="currency" class="form-select" required>
+                                <option value="">Select currency</option>
+                                <option value="USD">US Dollar (USD)</option>
+                                <option value="EUR">Euro (EUR)</option>
+                                <option value="GBP">British Pound (GBP)</option>
+                                <option value="NGN">Nigerian Naira (NGN)</option>
+                            </select>
+                        </div>
+                        <div class="nav-buttons">
+                            <button type="button" class="nav-button prev-button" onclick="prevStep(2)">Back</button>
+                            <button type="button" class="nav-button next-button" onclick="nextStep(2)">Continue</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 3: Connect Essentials -->
+                <div class="step-content" id="step-3">
+                    <h2 class="step-title">Connect essentials</h2>
+                    <div class="connect-panels">
+                        <div class="connect-panel">
+                            <h3 class="panel-name">Stripe</h3>
+                            <p class="panel-copy">Connect to get paid directly.</p>
+                            <button class="panel-button" onclick="connectStripe()">Connect Stripe</button>
+                        </div>
+                        <div class="connect-panel">
+                            <h3 class="panel-name">Calendly/Google</h3>
+                            <p class="panel-copy">Offer real availability.</p>
+                            <button class="panel-button" onclick="connectCalendar()">Connect Calendar</button>
+                        </div>
+                        <div class="connect-panel">
+                            <h3 class="panel-name">Email Sender</h3>
+                            <p class="panel-copy">Send confirmations from your address.</p>
+                            <button class="panel-button" onclick="connectEmail()">Connect Gmail or SendGrid</button>
+                        </div>
+                    </div>
+                    <div class="nav-buttons">
+                        <button type="button" class="nav-button prev-button" onclick="prevStep(3)">Back</button>
+                        <button type="button" class="nav-button next-button" onclick="nextStep(3)">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Your AI Number -->
+                <div class="step-content" id="step-4">
+                    <h2 class="step-title">Your AI number</h2>
+                    <p>We assign this number now. Keep your public number; just forward when busy/no-answer.</p>
+                    <div class="number-section">
+                        <div class="assigned-number" id="assigned-number-display">Loading...</div>
+                    </div>
+                    <div class="number-actions">
+                        <button class="number-action" onclick="showModal('forwarding')">See forwarding guide</button>
+                        <button class="number-action" onclick="testCall()">Place a test call</button>
+                    </div>
+                    <div class="nav-buttons">
+                        <button type="button" class="nav-button prev-button" onclick="prevStep(4)">Back</button>
+                        <button type="button" class="nav-button next-button" onclick="nextStep(4)">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Services -->
+                <div class="step-content" id="step-5">
+                    <h2 class="step-title">What do you offer?</h2>
+                    <form id="services-form">
+                        <div class="form-group">
+                            <label class="form-label">Choose</label>
+                            <div class="form-radio-group">
+                                <div class="form-radio">
+                                    <input type="radio" id="orders" name="mode" value="orders" required>
+                                    <label for="orders">I take orders</label>
+                                </div>
+                                <div class="form-radio">
+                                    <input type="radio" id="bookings" name="mode" value="bookings">
+                                    <label for="bookings">I book appointments</label>
+                                </div>
+                                <div class="form-radio">
+                                    <input type="radio" id="both" name="mode" value="both">
+                                    <label for="both">Both</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-toggle">
+                                <label class="form-label">Require deposit for bookings?</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="deposit">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="nav-buttons">
+                            <button type="button" class="nav-button prev-button" onclick="prevStep(5)">Back</button>
+                            <button type="button" class="nav-button next-button" onclick="nextStep(5)">Continue</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 6: Test Your Flows -->
+                <div class="step-content" id="step-6">
+                    <h2 class="step-title">Test your flows</h2>
+                    <div class="test-buttons">
+                        <button class="test-button" onclick="showModal('order')">Test Order</button>
+                        <button class="test-button" onclick="showModal('booking')">Test Booking</button>
+                        <button class="test-button" onclick="showModal('voicemail')">Test Voicemail</button>
+                    </div>
+                    <div class="nav-buttons">
+                        <button type="button" class="nav-button prev-button" onclick="prevStep(6)">Back</button>
+                        <a href="/dashboard?welcome=true" class="nav-button next-button">Go Live</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Product</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/how-it-works">How it Works</a></li>
+                        <li class="footer-link"><a href="/solutions">Solutions</a></li>
+                        <li class="footer-link"><a href="/pricing">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/support">Support</a></li>
+                        <li class="footer-link"><a href="/legal/privacy">Privacy</a></li>
+                        <li class="footer-link"><a href="/legal/terms">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © Callwaiting AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals would go here in a full implementation -->
+    <script type="module">
+        // Import the API client
+        import apiClient from './src/api.js';
+        
+        // Step navigation
+        function showStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Remove active class from all indicators
+            document.querySelectorAll('.step-indicator').forEach(indicator => {
+                indicator.classList.remove('active');
+            });
+            
+            // Show current step
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+            
+            // Update indicator
+            document.getElementById(`step-indicator-${stepNumber}`).classList.add('active');
+            
+            // Mark previous steps as completed
+            for (let i = 1; i < stepNumber; i++) {
+                document.getElementById(`step-indicator-${i}`).classList.add('completed');
+            }
+            
+            // Handle step-specific updates
+            if (stepNumber === 4 && onboardingState.assignedNumber) {
+                // Update the assigned number display
+                document.getElementById('assigned-number-display').textContent = onboardingState.assignedNumber;
+            }
+        }
+        
+        function nextStep(currentStep) {
+            if (currentStep < 6) {
+                showStep(currentStep + 1);
+            }
+        }
+        
+        function prevStep(currentStep) {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        }
+        
+        // Connection functions for step 3
+        async function connectStripe() {
+            if (!currentMerchant) {
+                alert('Please complete the business setup first.');
+                return;
+            }
+            
+            // In a real implementation, this would open Stripe Connect OAuth flow
+            const mockAccountId = 'acct_' + Math.random().toString(36).substr(2, 9);
+            const mockWebhookSecret = 'whsec_' + Math.random().toString(36).substr(2, 32);
+            
+            try {
+                const response = await apiClient.connectPaymentProvider(
+                    currentMerchant.id, 
+                    'stripe', 
+                    mockAccountId, 
+                    mockWebhookSecret
+                );
+                
+                if (response.success) {
+                    onboardingState.connectedServices.stripe = true;
+                    alert('Stripe connected successfully!');
+                    // Update UI to show connected state
+                    updateConnectionPanel('stripe', true);
+                } else {
+                    alert('Failed to connect Stripe: ' + response.message);
+                }
+            } catch (error) {
+                alert('Error connecting Stripe: ' + error.message);
+            }
+        }
+        
+        async function connectCalendar() {
+            if (!currentMerchant) {
+                alert('Please complete the business setup first.');
+                return;
+            }
+            
+            // In a real implementation, this would open OAuth flow
+            const provider = 'google'; // or 'calendly'
+            const mockCalendarId = 'primary';
+            const mockAccessToken = 'ya29.' + Math.random().toString(36).substr(2, 32);
+            const mockRefreshToken = '1//' + Math.random().toString(36).substr(2, 32);
+            
+            try {
+                const response = await apiClient.connectCalendarProvider(currentMerchant.id, provider, {
+                    calendar_id: mockCalendarId,
+                    access_token: mockAccessToken,
+                    refresh_token: mockRefreshToken
+                });
+                
+                if (response.success) {
+                    onboardingState.connectedServices.calendar = true;
+                    alert('Google Calendar connected successfully!');
+                    updateConnectionPanel('calendar', true);
+                } else {
+                    alert('Failed to connect calendar: ' + response.message);
+                }
+            } catch (error) {
+                alert('Error connecting calendar: ' + error.message);
+            }
+        }
+        
+        async function connectEmail() {
+            if (!currentMerchant) {
+                alert('Please complete the business setup first.');
+                return;
+            }
+            
+            const senderEmail = prompt('Enter your sender email address:');
+            if (!senderEmail) return;
+            
+            try {
+                const response = await apiClient.connectEmailProvider(
+                    currentMerchant.id, 
+                    'gmail', 
+                    senderEmail, 
+                    null
+                );
+                
+                if (response.success) {
+                    onboardingState.connectedServices.email = true;
+                    alert('Email sender connected successfully!');
+                    updateConnectionPanel('email', true);
+                } else {
+                    alert('Failed to connect email: ' + response.message);
+                }
+            } catch (error) {
+                alert('Error connecting email: ' + error.message);
+            }
+        }
+        
+        function updateConnectionPanel(service, connected) {
+            const panels = {
+                'stripe': 'Connect Stripe',
+                'calendar': 'Connect Calendar',
+                'email': 'Connect Gmail or SendGrid'
+            };
+            
+            const buttons = document.querySelectorAll('.panel-button');
+            buttons.forEach(button => {
+                if (button.textContent.includes(panels[service])) {
+                    if (connected) {
+                        button.textContent = '✓ Connected';
+                        button.style.backgroundColor = 'var(--success)';
+                        button.disabled = true;
+                    }
+                }
+            });
+        }
+        
+        // Test call function
+        async function testCall() {
+            if (!onboardingState.assignedNumber) {
+                alert('No number assigned yet. Please complete the previous steps.');
+                return;
+            }
+            
+            alert(`Test call feature: In a real implementation, this would initiate a test call to ${onboardingState.assignedNumber} to verify the IVR flow is working.`);
+        }
+        
+        // Modal function (simplified for demo)
+        function showModal(modalType) {
+            const messages = {
+                'stripe': 'Stripe Connect: In production, this would open the Stripe Connect OAuth flow.',
+                'calendar': 'Calendar Connect: This would open Google/Outlook OAuth to connect your calendar.',
+                'email': 'Email Setup: Configure SendGrid or Gmail SMTP for sending notifications.',
+                'forwarding': 'Call Forwarding Guide: Set up conditional call forwarding on your main number to forward to this AI number when busy or no answer.',
+                'test-call': 'Test Call: This would place a test call to verify your IVR flow is working correctly.',
+                'order': 'Order Test: This would simulate a customer calling to place an order.',
+                'booking': 'Booking Test: This would simulate a customer calling to book an appointment.',
+                'voicemail': 'Voicemail Test: This would simulate a customer leaving a voicemail.'
+            };
+            
+            alert(messages[modalType] || `Modal for ${modalType} not implemented in demo.`);
+        }
+        
+        // Make functions global for onclick handlers
+        window.connectStripe = connectStripe;
+        window.connectCalendar = connectCalendar;
+        window.connectEmail = connectEmail;
+        window.testCall = testCall;
+        window.showModal = showModal;
+        
+        // Global state to store merchant info during onboarding
+        let currentMerchant = null;
+        let onboardingState = {
+            accountData: null,
+            businessData: null,
+            connectedServices: {
+                stripe: false,
+                calendar: false,
+                email: false
+            },
+            assignedNumber: null
+        };
+        
+        // Form submission handling
+        document.getElementById('account-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Store account data for later use
+            onboardingState.accountData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                acceptTerms: document.getElementById('accept').checked
+            };
+            
+            if (!onboardingState.accountData.acceptTerms) {
+                alert('Please accept the terms and conditions to continue.');
+                return;
+            }
+            
+            nextStep(1);
+        });
+        
+        // Business form submission
+        document.getElementById('business-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitButton = e.target.querySelector('.next-button');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Creating...';
+            submitButton.disabled = true;
+            
+            // Collect business form data
+            const businessData = {
+                name: document.getElementById('businessName').value,
+                industry: document.getElementById('industry').value,
+                country: document.getElementById('country').value,
+                timezone: document.getElementById('timezone').value,
+                currency: document.getElementById('currency').value,
+                website: document.getElementById('website')?.value || null,
+                owner_phone: onboardingState.accountData?.email || null, // Use email temporarily
+                billing_email: onboardingState.accountData?.email || null
+            };
+            
+            onboardingState.businessData = businessData;
+            console.log('Submitting business data:', businessData);
+            
+            try {
+                // Submit to backend
+                const response = await apiClient.submitOnboardingData(businessData);
+                
+                if (response.success) {
+                    currentMerchant = response.data;
+                    console.log('Merchant created successfully:', currentMerchant);
+                    
+                    // Automatically assign a number
+                    const numberResponse = await apiClient.assignNumber(currentMerchant.id);
+                    if (numberResponse.success) {
+                        onboardingState.assignedNumber = numberResponse.data.number;
+                        console.log('Number assigned:', onboardingState.assignedNumber);
+                    }
+                    
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                    nextStep(2);
+                } else {
+                    console.error('Failed to create merchant:', response.message);
+                    alert('Failed to create business profile: ' + response.message);
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error submitting business data:', error);
+                alert('Error submitting business data: ' + error.message);
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        });
+        
+        // Services form submission
+        document.getElementById('services-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            nextStep(5);
+        });
+    </script>
+</body>
+</html>

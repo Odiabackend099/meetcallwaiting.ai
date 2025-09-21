@@ -1,0 +1,308 @@
+{
+  "name": "ivr_dispatch",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "ivr_dispatch"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "path",
+              "value": "={{ $json[\"path\"] }}"
+            },
+            {
+              "name": "caller_phone",
+              "value": "={{ $json[\"caller_phone\"] }}"
+            },
+            {
+              "name": "recording_url",
+              "value": "={{ $json[\"recording_url\"] }}"
+            },
+            {
+              "name": "transcript",
+              "value": "={{ $json[\"transcript\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json[\"path\"] }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equal",
+              "value2": "order",
+              "output": 0
+            },
+            {
+              "operation": "equal",
+              "value2": "booking",
+              "output": 1
+            },
+            {
+              "operation": "equal",
+              "value2": "voicemail",
+              "output": 2
+            }
+          ]
+        }
+      },
+      "id": "3",
+      "name": "Switch Path",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/orders/create",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"items\": [],\n  \"customer_phone\": \"={{ $json[\"caller_phone\"] }}\",\n  \"transcript\": \"={{ $json[\"transcript\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "4",
+      "name": "Create Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        850,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/notifications/send-sms",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"to\": \"={{ $json[\"customer_phone\"] }}\",\n  \"message\": \"={{ \\\"Thank you for your order. Please complete your payment at: \\\" + $json[\\\"payment_link_url\\\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "5",
+      "name": "Send Payment Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/bookings/create",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"customer_phone\": \"={{ $json[\"caller_phone\"] }}\",\n  \"service\": \"General Inquiry\",\n  \"transcript\": \"={{ $json[\"transcript\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "6",
+      "name": "Create Booking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/scheduling/availability",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"customer_phone\": \"={{ $json[\"caller_phone\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "7",
+      "name": "Fetch Availability",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/notifications/send-sms",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"to\": \"={{ $json[\"customer_phone\"] }}\",\n  \"message\": \"={{ \\\"Thank you for your booking request. Here are available slots: \\\" + $json[\\\"slots\\\"].join(\\\", \\\") }}\"\n}",
+        "options": {}
+      },
+      "id": "8",
+      "name": "Send Booking Slots",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/voicemail/process",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"caller_phone\": \"={{ $json[\"caller_phone\"] }}\",\n  \"recording_url\": \"={{ $json[\"recording_url\"] }}\",\n  \"transcript\": \"={{ $json[\"transcript\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "9",
+      "name": "Process Voicemail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        850,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/notifications/send-email",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"to\": \"={{ $parameter[\"merchantEmail\"] }}\",\n  \"subject\": \"New Voicemail from {{ $json[\"caller_phone\"] }}\",\n  \"template\": \"voicemail_notification\",\n  \"data\": {\n    \"caller_phone\": \"={{ $json[\"caller_phone\"] }}\",\n    \"transcript\": \"={{ $json[\"transcript\"] }}\",\n    \"recording_url\": \"={{ $json[\"recording_url\"] }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "10",
+      "name": "Notify Merchant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Switch Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Path": {
+      "main": [
+        [
+          {
+            "node": "Create Order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Process Voicemail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Order": {
+      "main": [
+        [
+          {
+            "node": "Send Payment Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Booking": {
+      "main": [
+        [
+          {
+            "node": "Fetch Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Availability": {
+      "main": [
+        [
+          {
+            "node": "Send Booking Slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Voicemail": {
+      "main": [
+        [
+          {
+            "node": "Notify Merchant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1"
+}

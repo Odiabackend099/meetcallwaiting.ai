@@ -1,0 +1,378 @@
+{
+  "name": "health_watch",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/health",
+        "authentication": "none",
+        "options": {}
+      },
+      "id": "2",
+      "name": "Check API Health",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        450,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "url": "={{ $parameter[\"twilioBaseUrl\"] }}/Monitor/Alerts",
+        "authentication": "none",
+        "options": {
+          "queryParameters": {
+            "PageSize": "5"
+          }
+        }
+      },
+      "id": "3",
+      "name": "Check Twilio Alerts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "url": "={{ $parameter[\"stripeBaseUrl\"] }}/v1/events",
+        "authentication": "none",
+        "options": {
+          "queryParameters": {
+            "limit": "5",
+            "type": "charge.failed"
+          }
+        }
+      },
+      "id": "4",
+      "name": "Check Stripe Failures",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        450,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "boolean",
+        "value1": "={{ $json[\"status\"] === \"ok\" }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equal",
+              "value2": true,
+              "output": 0
+            }
+          ]
+        }
+      },
+      "id": "5",
+      "name": "API Health Check",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        650,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "alert_type",
+              "value": "api_down"
+            },
+            {
+              "name": "message",
+              "value": "API service is not responding"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6",
+      "name": "Set API Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        850,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "number",
+        "value1": "={{ $json[\"alerts\"] ? $json[\"alerts\"].length : 0 }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "larger",
+              "value2": 0,
+              "output": 0
+            }
+          ]
+        }
+      },
+      "id": "7",
+      "name": "Twilio Alert Check",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "alert_type",
+              "value": "twilio_error"
+            },
+            {
+              "name": "message",
+              "value": "={{ \"Twilio errors detected: \" + ($json[\"alerts\"] ? $json[\"alerts\"].length : 0) + \" recent alerts\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8",
+      "name": "Set Twilio Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "number",
+        "value1": "={{ $json[\"data\"] ? $json[\"data\"].length : 0 }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "larger",
+              "value2": 0,
+              "output": 0
+            }
+          ]
+        }
+      },
+      "id": "9",
+      "name": "Stripe Failure Check",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        650,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "alert_type",
+              "value": "stripe_failure"
+            },
+            {
+              "name": "message",
+              "value": "={{ \"Stripe payment failures detected: \" + ($json[\"data\"] ? $json[\"data\"].length : 0) + \" recent failures\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "10",
+      "name": "Set Stripe Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        850,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "={{ $parameter[\"baseUrl\"] }}/api/notifications/alert",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersJson": "={{ $json }}",
+        "options": {}
+      },
+      "id": "11",
+      "name": "Send Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check API Health",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Twilio Alerts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Stripe Failures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check API Health": {
+      "main": [
+        [
+          {
+            "node": "API Health Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Health Check": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Set API Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set API Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Twilio Alerts": {
+      "main": [
+        [
+          {
+            "node": "Twilio Alert Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio Alert Check": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Set Twilio Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Twilio Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Stripe Failures": {
+      "main": [
+        [
+          {
+            "node": "Stripe Failure Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Failure Check": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Set Stripe Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Stripe Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1"
+}

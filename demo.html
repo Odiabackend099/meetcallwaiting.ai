@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Demo - Callwaiting AI</title>
+    <meta name="description" content="Try the Callwaiting AI voice assistant. Experience how it handles orders, bookings, and voicemail in real-time.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #01C6D6;
+            --primary-dark: #0A5AA8;
+            --primary-light: #6FE7F2;
+            --accent: #16E0C1;
+            --navy-900: #0B2142;
+            --navy-700: #123A69;
+            --slate-600: #64748B;
+            --slate-100: #F1F5F9;
+            --white: #FFFFFF;
+            --danger: #E11D48;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --gradient-hero: linear-gradient(135deg, #01C6D6 0%, #0A5AA8 50%, #16E0C1 100%);
+            --shadow-soft: 0 10px 30px rgba(1, 198, 214, 0.15);
+            --shadow-hard: 0 12px 40px rgba(11, 33, 66, 0.35);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--navy-900);
+            background-color: var(--slate-100);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: var(--gradient-hero);
+            backdrop-filter: blur(12px);
+            padding: 16px 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .cta-button {
+            background-color: var(--white);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-hard);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(11, 33, 66, 0.45);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 60px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .demo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .demo-content {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .demo-sidebar {
+            width: 300px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            padding: 24px;
+            align-self: flex-start;
+        }
+
+        .demo-header {
+            margin-bottom: 40px;
+        }
+
+        .demo-title {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: var(--navy-900);
+        }
+
+        .demo-subtitle {
+            font-size: 18px;
+            color: var(--slate-600);
+        }
+
+        /* Scenarios */
+        .scenarios {
+            margin-bottom: 40px;
+        }
+
+        .scenario-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--navy-900);
+        }
+
+        .scenario-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .scenario-button {
+            background: var(--white);
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .scenario-button:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .scenario-button.active {
+            border-color: var(--primary);
+            background: rgba(1, 198, 214, 0.05);
+        }
+
+        /* Chat Container */
+        .chat-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            background: var(--navy-900);
+            color: var(--white);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            position: relative;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: var(--primary);
+            color: var(--white);
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background: var(--slate-100);
+            color: var(--navy-900);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-timestamp {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 20px;
+            background: var(--white);
+            border-top: 1px solid var(--slate-100);
+            gap: 12px;
+        }
+
+        .voice-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .voice-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--slate-100);
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .voice-button.active {
+            background: var(--danger);
+            color: var(--white);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chat-input button {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chat-input button:hover {
+            background: var(--primary-dark);
+        }
+
+        /* AI Avatar in Chat */
+        .ai-avatar-small {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ai-avatar-small-inner {
+            position: relative;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .avatar-face-small {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .avatar-eyes-small {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 2px;
+        }
+
+        .avatar-eye-small {
+            width: 4px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--navy-900);
+        }
+
+        .avatar-mouth-small {
+            width: 10px;
+            height: 4px;
+            border-radius: 0 0 5px 5px;
+            background: var(--navy-900);
+        }
+
+        /* CTA Section */
+        .demo-cta {
+            margin-top: 40px;
+            text-align: center;
+            padding: 40px;
+            background: var(--gradient-hero);
+            border-radius: var(--radius-lg);
+            color: var(--white);
+        }
+
+        .cta-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            background: var(--white);
+            color: var(--navy-900);
+            border: none;
+            border-radius: var(--radius-xl);
+            padding: 16px 32px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-hard);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(11, 33, 66, 0.45);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--navy-900);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 12px;
+        }
+
+        .footer-link a {
+            color: var(--slate-100);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: var(--accent);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--slate-100);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .demo-container {
+                flex-direction: column;
+            }
+
+            .demo-sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="logo">Callwaiting AI</a>
+            <div class="nav-links">
+                <a href="/how-it-works" class="nav-link">How it Works</a>
+                <a href="/solutions" class="nav-link">Solutions</a>
+                <a href="/pricing" class="nav-link">Pricing</a>
+                <a href="/demo" class="nav-link">Demo</a>
+            </div>
+            <a href="/onboarding" class="cta-button">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="demo-container">
+                <div class="demo-content">
+                    <div class="demo-header">
+                        <h1 class="demo-title">Talk to the AI</h1>
+                        <p class="demo-subtitle">Use your mic or type. This is a safe demo.</p>
+                    </div>
+
+                    <!-- Chat Container -->
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <h3 class="chat-title">Callwaiting AI Assistant</h3>
+                            <div class="chat-status">
+                                <div class="status-indicator"></div>
+                                <span>Online</span>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message ai-message">
+                                <div class="ai-avatar-small">
+                                    <div class="ai-avatar-small-inner">
+                                        <div class="avatar-face-small">
+                                            <div class="avatar-eyes-small">
+                                                <div class="avatar-eye-small"></div>
+                                                <div class="avatar-eye-small"></div>
+                                            </div>
+                                            <div class="avatar-mouth-small"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="message-content">Hi there! I'm your Callwaiting AI assistant. How can I help you today?</div>
+                                <div class="message-timestamp">10:00 AM</div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">I'd like to place an order</div>
+                                <div class="message-timestamp">10:01 AM</div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="ai-avatar-small">
+                                    <div class="ai-avatar-small-inner">
+                                        <div class="avatar-face-small">
+                                            <div class="avatar-eyes-small">
+                                                <div class="avatar-eye-small"></div>
+                                                <div class="avatar-eye-small"></div>
+                                            </div>
+                                            <div class="avatar-mouth-small"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="message-content">Great! What would you like to order?</div>
+                                <div class="message-timestamp">10:01 AM</div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <div class="voice-controls">
+                                <button class="voice-button" id="micButton" onclick="toggleVoiceInput()" title="Voice input">🎤</button>
+                            </div>
+                            <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                            <button onclick="sendMessage()">Send</button>
+                        </div>
+                    </div>
+
+                    <!-- CTA Section -->
+                    <div class="demo-cta">
+                        <h2 class="cta-title">Ready to get started?</h2>
+                        <p>Experience the full power of Callwaiting AI with your own account</p>
+                        <a href="/onboarding" class="cta-button">Get Started</a>
+                    </div>
+                </div>
+
+                <div class="demo-sidebar">
+                    <div class="scenarios">
+                        <h3 class="scenario-title">Try these scenarios</h3>
+                        <div class="scenario-buttons">
+                            <button class="scenario-button active" onclick="selectScenario('order')">
+                                Place an order
+                            </button>
+                            <button class="scenario-button" onclick="selectScenario('booking')">
+                                Book an appointment
+                            </button>
+                            <button class="scenario-button" onclick="selectScenario('law')">
+                                Legal intake
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="scenario-info">
+                        <h3 class="scenario-title">How it works</h3>
+                        <p>Select a scenario above and start chatting with the AI assistant. You can type your messages or use voice input.</p>
+                        <p>The AI will guide you through the process and demonstrate how Callwaiting AI handles different types of interactions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Product</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/how-it-works">How it Works</a></li>
+                        <li class="footer-link"><a href="/solutions">Solutions</a></li>
+                        <li class="footer-link"><a href="/pricing">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="/support">Support</a></li>
+                        <li class="footer-link"><a href="/legal/privacy">Privacy</a></li>
+                        <li class="footer-link"><a href="/legal/terms">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © Callwaiting AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scenario selection
+        function selectScenario(scenario) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.scenario-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // In a real implementation, this would change the AI behavior
+            const messagesContainer = document.getElementById('chatMessages');
+            const newMessage = document.createElement('div');
+            newMessage.className = 'message ai-message';
+            newMessage.innerHTML = `
+                <div class="ai-avatar-small">
+                    <div class="ai-avatar-small-inner">
+                        <div class="avatar-face-small">
+                            <div class="avatar-eyes-small">
+                                <div class="avatar-eye-small"></div>
+                                <div class="avatar-eye-small"></div>
+                            </div>
+                            <div class="avatar-mouth-small"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="message-content">You've selected the ${scenario} scenario. How can I help you with that?</div>
+                <div class="message-timestamp">Just now</div>
+            `;
+            messagesContainer.appendChild(newMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Voice input toggle
+        function toggleVoiceInput() {
+            const micButton = document.getElementById('micButton');
+            micButton.classList.toggle('active');
+            
+            if (micButton.classList.contains('active')) {
+                micButton.title = "Listening... Click to stop";
+                // In a real implementation, this would start speech recognition
+            } else {
+                micButton.title = "Voice input";
+                // In a real implementation, this would stop speech recognition
+            }
+        }
+
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                // Add user message
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message user-message';
+                userMessage.innerHTML = `
+                    <div class="message-content">${message}</div>
+                    <div class="message-timestamp">${timestamp}</div>
+                `;
+                messagesContainer.appendChild(userMessage);
+                
+                // Clear input
+                input.value = '';
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Simulate AI response after a delay
+                setTimeout(() => {
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'message ai-message';
+                    aiMessage.innerHTML = `
+                        <div class="ai-avatar-small">
+                            <div class="ai-avatar-small-inner">
+                                <div class="avatar-face-small">
+                                    <div class="avatar-eyes-small">
+                                        <div class="avatar-eye-small"></div>
+                                        <div class="avatar-eye-small"></div>
+                                    </div>
+                                    <div class="avatar-mouth-small"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message-content">Thanks for your message. In a real implementation, I would process your request and provide a relevant response.</div>
+                        <div class="message-timestamp">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    `;
+                    messagesContainer.appendChild(aiMessage);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 1000);
+            }
+        }
+
+        // Handle Enter key press
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Initialize the chat
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+    </script>
+</body>
+</html>
