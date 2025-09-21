@@ -18,6 +18,14 @@
       "use": "@vercel/static"
     },
     {
+      "src": "verify-email.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "reset-password.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "how-it-works.html",
       "use": "@vercel/static"
     },
@@ -54,6 +62,14 @@
     {
       "source": "/dashboard",
       "destination": "/business-dashboard.html"
+    },
+    {
+      "source": "/verify-email",
+      "destination": "/verify-email.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/reset-password.html"
     },
     {
       "source": "/how-it-works",

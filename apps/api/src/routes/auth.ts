@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 
 export const router = Router();
 
-// Register a new user
+// Register a new user with email verification
 router.post('/register', async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -17,16 +17,31 @@ router.post('/register', async (req: Request, res: Response) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        error: 'Invalid email format' 
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({ 
+        error: 'Password must be at least 8 characters long' 
+      });
+    }
     
-    // Create user in Supabase (using auth.users table)
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    // Create user in Supabase with email confirmation
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      user_metadata: {
-        name,
-        full_name: name
+      options: {
+        data: {
+          name,
+          full_name: name
+        },
+        emailRedirectTo: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email`
       }
     });
 
@@ -38,20 +53,15 @@ router.post('/register', async (req: Request, res: Response) => {
       });
     }
 
-    // Generate JWT token
-    const token = generateToken({ 
-      userId: authData.user.id, 
-      email: authData.user.email 
-    });
-
+    // Don't return token immediately - user needs to verify email first
     res.status(201).json({ 
-      message: 'User registered successfully',
-      token,
+      message: 'Registration successful. Please check your email to verify your account.',
       user: {
-        id: authData.user.id,
-        email: authData.user.email,
-        name: authData.user.user_metadata.name
-      }
+        id: authData.user?.id,
+        email: authData.user?.email,
+        email_confirmed: authData.user?.email_confirmed_at ? true : false
+      },
+      requires_verification: true
     });
   } catch (error: any) {
     console.error('Error registering user:', error);
@@ -62,7 +72,7 @@ router.post('/register', async (req: Request, res: Response) => {
   }
 });
 
-// Login user
+// Login user with email verification check
 router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -87,6 +97,15 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
+    // Check if email is verified
+    if (!authData.user.email_confirmed_at) {
+      return res.status(403).json({ 
+        error: 'Email not verified', 
+        message: 'Please verify your email before logging in',
+        requires_verification: true
+      });
+    }
+
     // Generate JWT token
     const token = generateToken({ 
       userId: authData.user.id, 
@@ -99,7 +118,8 @@ router.post('/login', async (req: Request, res: Response) => {
       user: {
         id: authData.user.id,
         email: authData.user.email,
-        name: authData.user.user_metadata?.name
+        name: authData.user.user_metadata?.name,
+        email_confirmed: true
       }
     });
   } catch (error: any) {
@@ -196,6 +216,122 @@ router.post('/refresh', async (req: Request, res: Response) => {
     console.error('Error refreshing token:', error);
     res.status(500).json({ 
       error: 'Failed to refresh token', 
+      message: error.message 
+    });
+  }
+});
+
+// Resend email verification
+router.post('/resend-verification', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        error: 'Email is required' 
+      });
+    }
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email`
+      }
+    });
+
+    if (error) {
+      console.error('Error resending verification:', error);
+      return res.status(400).json({ 
+        error: 'Failed to resend verification email', 
+        message: error.message 
+      });
+    }
+
+    res.json({ 
+      message: 'Verification email sent successfully' 
+    });
+  } catch (error: any) {
+    console.error('Error resending verification:', error);
+    res.status(500).json({ 
+      error: 'Failed to resend verification', 
+      message: error.message 
+    });
+  }
+});
+
+// Request password reset
+router.post('/forgot-password', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        error: 'Email is required' 
+      });
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password`
+    });
+
+    if (error) {
+      console.error('Error sending password reset:', error);
+      return res.status(400).json({ 
+        error: 'Failed to send password reset email', 
+        message: error.message 
+      });
+    }
+
+    res.json({ 
+      message: 'Password reset email sent successfully' 
+    });
+  } catch (error: any) {
+    console.error('Error sending password reset:', error);
+    res.status(500).json({ 
+      error: 'Failed to send password reset', 
+      message: error.message 
+    });
+  }
+});
+
+// Update password
+router.post('/update-password', async (req: Request, res: Response) => {
+  try {
+    const { password } = req.body;
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({ 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!password || password.length < 8) {
+      return res.status(400).json({ 
+        error: 'Password must be at least 8 characters long' 
+      });
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password
+    });
+
+    if (error) {
+      console.error('Error updating password:', error);
+      return res.status(400).json({ 
+        error: 'Failed to update password', 
+        message: error.message 
+      });
+    }
+
+    res.json({ 
+      message: 'Password updated successfully' 
+    });
+  } catch (error: any) {
+    console.error('Error updating password:', error);
+    res.status(500).json({ 
+      error: 'Failed to update password', 
       message: error.message 
     });
   }

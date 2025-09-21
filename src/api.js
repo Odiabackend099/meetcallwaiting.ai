@@ -166,6 +166,15 @@ class ApiClient {
         body: JSON.stringify(userData)
       });
       
+      if (response.requires_verification) {
+        return {
+          success: true,
+          message: response.message,
+          data: response.user,
+          requires_verification: true
+        };
+      }
+      
       if (response.token) {
         this.setAuthToken(response.token, true);
         return {
@@ -197,6 +206,69 @@ class ApiClient {
       console.error('Error logging out:', error);
     } finally {
       this.clearAuthToken();
+    }
+  }
+
+  // Resend email verification
+  async resendVerification(email) {
+    try {
+      const response = await this.request('/api/auth/resend-verification', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
+      
+      return {
+        success: true,
+        message: response.message
+      };
+    } catch (error) {
+      console.error('Error resending verification:', error);
+      return {
+        success: false,
+        message: 'Failed to resend verification: ' + error.message
+      };
+    }
+  }
+
+  // Request password reset
+  async forgotPassword(email) {
+    try {
+      const response = await this.request('/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
+      
+      return {
+        success: true,
+        message: response.message
+      };
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      return {
+        success: false,
+        message: 'Failed to send password reset: ' + error.message
+      };
+    }
+  }
+
+  // Update password
+  async updatePassword(password) {
+    try {
+      const response = await this.request('/api/auth/update-password', {
+        method: 'POST',
+        body: JSON.stringify({ password })
+      });
+      
+      return {
+        success: true,
+        message: response.message
+      };
+    } catch (error) {
+      console.error('Error updating password:', error);
+      return {
+        success: false,
+        message: 'Failed to update password: ' + error.message
+      };
     }
   }
 
@@ -508,32 +580,65 @@ class ApiClient {
     }
   }
 
-  // Get dashboard data
+  // Get dashboard data from backend
   async getDashboardData() {
-    // In a real implementation, this would fetch data from your backend
-    // The backend would:
-    // - Authenticate the user
-    // - Fetch data from your database
-    // - Return only the data the user is authorized to see
-    return {
-      kpi: {
-        capturedCalls: 42,
-        paidOrders: 27,
-        bookings: 18,
-        avgResponseTime: 4.6
-      },
-      orders: [
-        { time: '10:30 AM', caller: '+1 (555) 123-4567', total: '$24.99', status: 'paid' },
-        { time: '9:15 AM', caller: '+1 (555) 987-6543', total: '$18.50', status: 'paid' },
-        { time: 'Yesterday, 4:20 PM', caller: '+1 (555) 456-7890', total: '$32.75', status: 'paid' },
-        { time: 'Yesterday, 1:45 PM', caller: '+1 (555) 234-5678', total: '$15.00', status: 'paid' }
-      ],
-      appointments: [
-        { time: 'Tomorrow, 10:30 AM', caller: '+1 (555) 123-4567', service: 'Haircut & Color', status: 'booked' },
-        { time: 'Tomorrow, 2:00 PM', caller: '+1 (555) 987-6543', service: 'Consultation', status: 'booked' },
-        { time: 'Today, 11:00 AM', caller: '+1 (555) 456-7890', service: 'Follow-up', status: 'completed' }
-      ]
-    };
+    try {
+      const response = await this.request('/api/dashboard/data');
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch dashboard data: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  // Get merchant settings
+  async getMerchantSettings() {
+    try {
+      const response = await this.request('/api/dashboard/settings');
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error fetching merchant settings:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch merchant settings: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  // Update merchant settings
+  async updateMerchantSettings(settings) {
+    try {
+      const response = await this.request('/api/dashboard/settings', {
+        method: 'PATCH',
+        body: JSON.stringify({ settings })
+      });
+      
+      return {
+        success: true,
+        message: response.message,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error updating merchant settings:', error);
+      return {
+        success: false,
+        message: 'Failed to update merchant settings: ' + error.message,
+        data: null
+      };
+    }
   }
 }
 

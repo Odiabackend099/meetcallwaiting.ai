@@ -36,6 +36,8 @@ export default defineConfig({
         main: resolve(fileURLToPath(new URL('.', import.meta.url)), 'index.html'),
         onboarding: resolve(fileURLToPath(new URL('.', import.meta.url)), 'onboarding.html'),
         'business-dashboard': resolve(fileURLToPath(new URL('.', import.meta.url)), 'business-dashboard.html'),
+        'verify-email': resolve(fileURLToPath(new URL('.', import.meta.url)), 'verify-email.html'),
+        'reset-password': resolve(fileURLToPath(new URL('.', import.meta.url)), 'reset-password.html'),
         'how-it-works': resolve(fileURLToPath(new URL('.', import.meta.url)), 'how-it-works.html'),
         solutions: resolve(fileURLToPath(new URL('.', import.meta.url)), 'solutions.html'),
         pricing: resolve(fileURLToPath(new URL('.', import.meta.url)), 'pricing.html'),

@@ -204,45 +204,132 @@
         </div>
     </div>
 
-    <script>
-        const API_BASE = 'http://localhost:8787';
-        let currentBusiness = null;
+    <script type="module">
+        import apiClient from './src/api.js';
 
-        // Load business data
+        let currentBusiness = null;
+        let dashboardData = null;
+
+        // Load business data from backend
         async function loadBusinessData() {
             try {
-                // Get business info (mock for now)
-                currentBusiness = {
-                    name: "Joe's Pizza",
-                    phone: "+1 (202) 555-0199",
-                    industry: "Restaurant/QSR"
-                };
+                // Check if user is authenticated
+                const authToken = apiClient.getAuthToken();
+                if (!authToken) {
+                    // Redirect to login if not authenticated
+                    window.location.href = '/onboarding.html';
+                    return;
+                }
 
-                document.getElementById('business-name').textContent = currentBusiness.name;
-                document.getElementById('ai-phone-number').textContent = currentBusiness.phone;
+                // Get dashboard data from backend
+                const response = await apiClient.getDashboardData();
+                
+                if (response.success && response.data) {
+                    dashboardData = response.data;
+                    currentBusiness = dashboardData.merchant;
+                    
+                    // Update business info
+                    document.getElementById('business-name').textContent = currentBusiness.name;
+                    document.getElementById('ai-phone-number').textContent = currentBusiness.phone || 'Not assigned';
 
-                // Update stats (mock data)
-                document.getElementById('total-calls').textContent = '12';
-                document.getElementById('orders-captured').textContent = '8';
-                document.getElementById('bookings-made').textContent = '3';
-                document.getElementById('revenue-today').textContent = '$247.50';
+                    // Update stats with real data
+                    const kpi = dashboardData.kpi;
+                    document.getElementById('total-calls').textContent = kpi.totalCalls || '0';
+                    document.getElementById('orders-captured').textContent = kpi.paidOrders || '0';
+                    document.getElementById('bookings-made').textContent = kpi.confirmedAppointments || '0';
+                    document.getElementById('revenue-today').textContent = `$${kpi.revenue || '0.00'}`;
 
-                // Update setup status
-                updateSetupStatus();
+                    // Update setup status based on real data
+                    updateSetupStatus();
+                    
+                    // Update recent activity
+                    updateRecentActivity();
+                } else {
+                    console.error('Failed to load dashboard data:', response.message);
+                    showError('Failed to load dashboard data. Please try again.');
+                }
 
             } catch (error) {
                 console.error('Error loading business data:', error);
+                showError('Error loading dashboard data. Please check your connection.');
             }
         }
 
+        function updateRecentActivity() {
+            if (!dashboardData || !dashboardData.recentActivity) return;
+            
+            const activityContainer = document.querySelector('.activity-list');
+            if (!activityContainer) return;
+            
+            // Clear existing activity
+            activityContainer.innerHTML = '';
+            
+            // Add recent activities
+            dashboardData.recentActivity.forEach(activity => {
+                const activityItem = document.createElement('div');
+                activityItem.className = 'activity-item';
+                activityItem.innerHTML = `
+                    <div>${activity.description}</div>
+                    <div class="activity-time">${activity.timestamp}</div>
+                `;
+                activityContainer.appendChild(activityItem);
+            });
+        }
+
+        function showError(message) {
+            // Show error message to user
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #fee2e2;
+                color: #991b1b;
+                padding: 12px 16px;
+                border-radius: 8px;
+                border: 1px solid #fca5a5;
+                z-index: 1000;
+            `;
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                document.body.removeChild(errorDiv);
+            }, 5000);
+        }
+
         function updateSetupStatus() {
+            if (!currentBusiness) return;
+            
             const checks = document.querySelectorAll('#setup-status li');
-            checks[0].className = 'done'; // Business account
-            checks[1].className = 'done'; // Phone number
-            checks[2].className = 'done'; // Payment
-            checks[3].className = 'done'; // Calendar
-            checks[4].className = 'done'; // Voice AI
-            checks[5].className = 'pending'; // Live status
+            
+            // Business account - always done if we have merchant data
+            checks[0].className = 'done';
+            
+            // Phone number - check if assigned
+            if (currentBusiness.phone) {
+                checks[1].className = 'done';
+            } else {
+                checks[1].className = 'pending';
+            }
+            
+            // Payment - check if payment provider is configured
+            // This would need to be added to the merchant data structure
+            checks[2].className = 'pending'; // TODO: Check payment provider status
+            
+            // Calendar - check if calendar provider is configured
+            // This would need to be added to the merchant data structure
+            checks[3].className = 'pending'; // TODO: Check calendar provider status
+            
+            // Voice AI - always available
+            checks[4].className = 'done';
+            
+            // Live status - check if all required services are configured
+            const isLive = currentBusiness.phone && 
+                          checks[2].className === 'done' && 
+                          checks[3].className === 'done';
+            checks[5].className = isLive ? 'done' : 'pending';
         }
 
         function showTab(tabName) {

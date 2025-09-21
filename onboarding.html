@@ -1081,7 +1081,7 @@
         };
         
         // Form submission handling
-        document.getElementById('account-form').addEventListener('submit', function(e) {
+        document.getElementById('account-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form values
@@ -1101,8 +1101,8 @@
                 return;
             }
             
-            if (!password || password.length < 6) {
-                alert('Password must be at least 6 characters long');
+            if (!password || password.length < 8) {
+                alert('Password must be at least 8 characters long');
                 return;
             }
             
@@ -1111,16 +1111,56 @@
                 return;
             }
             
-            // Store account data for later use
-            onboardingState.accountData = {
-                name: name.trim(),
-                email: email.trim(),
-                password: password,
-                acceptTerms: acceptTerms
-            };
+            // Show loading state
+            const submitButton = e.target.querySelector('.next-button');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Creating Account...';
+            submitButton.disabled = true;
             
-            console.log('Account data validated and stored:', onboardingState.accountData);
-            nextStep(1);
+            try {
+                // Register user with email verification
+                const result = await apiClient.register({
+                    name: name.trim(),
+                    email: email.trim(),
+                    password: password
+                });
+                
+                if (result.success) {
+                    if (result.requires_verification) {
+                        // Store email for verification page
+                        localStorage.setItem('pending_verification_email', email.trim());
+                        
+                        // Show verification message
+                        showModal(
+                            'Account Created Successfully!',
+                            `We've sent a verification email to ${email.trim()}. Please check your inbox and click the verification link to continue.`,
+                            'success'
+                        );
+                        
+                        // Redirect to verification page after 3 seconds
+                        setTimeout(() => {
+                            window.location.href = `/verify-email.html?email=${encodeURIComponent(email.trim())}`;
+                        }, 3000);
+                    } else {
+                        // Account created and verified (shouldn't happen with current setup)
+                        onboardingState.accountData = {
+                            name: name.trim(),
+                            email: email.trim(),
+                            password: password,
+                            acceptTerms: acceptTerms
+                        };
+                        nextStep(1);
+                    }
+                } else {
+                    alert('Registration failed: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Registration failed: ' + error.message);
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
         });
         
         // Business form submission

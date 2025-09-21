@@ -15,6 +15,7 @@ import { router as health } from './routes/health.js';
 import { router as config } from './routes/config.js';
 import { router as notifications } from './routes/notifications.js';
 import { router as auth } from './routes/auth.js';
+import { router as dashboard } from './routes/dashboard.js';
 import { requestId } from './middleware/auth.js';
 
 const app = express();
@@ -110,6 +111,7 @@ app.get('/', (_req: express.Request, res: express.Response) => res.json({
 
 // API routes with standardized prefixes
 app.use('/api/auth', auth);
+app.use('/api/dashboard', dashboard);
 app.use('/api/ivr', ivr);
 app.use('/api/webhooks', webhooks);
 app.use('/api/orders', orders);

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - Callwaiting AI</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --navy-900: #1e293b;
+            --slate-600: #475569;
+            --slate-500: #64748b;
+            --slate-400: #94a3b8;
+            --slate-300: #cbd5e1;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50: #f8fafc;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 12px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: var(--navy-900);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            color: var(--slate-600);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .email-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--slate-100);
+            border-radius: 50%;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--slate-500);
+        }
+
+        .email-address {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 16px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            color: var(--navy-900);
+        }
+
+        .instructions {
+            background: var(--slate-50);
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            margin: 24px 0;
+            text-align: left;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .instructions h3 {
+            color: var(--navy-900);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .instructions ol {
+            color: var(--slate-600);
+            font-size: 14px;
+            line-height: 1.6;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 4px;
+        }
+
+        .resend-section {
+            margin: 32px 0;
+            padding: 24px;
+            background: var(--slate-50);
+            border-radius: 12px;
+            border: 1px solid var(--slate-200);
+        }
+
+        .resend-section h3 {
+            color: var(--navy-900);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .resend-section p {
+            color: var(--slate-600);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: var(--slate-400);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--slate-600);
+            border: 1px solid var(--slate-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--slate-50);
+            color: var(--navy-900);
+        }
+
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .footer {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--slate-200);
+            color: var(--slate-500);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--slate-300);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">CW</div>
+        
+        <h1>Verify Your Email</h1>
+        <p class="subtitle">We've sent a verification link to your email address</p>
+        
+        <div class="email-icon">📧</div>
+        
+        <div class="email-address" id="email-display">Loading...</div>
+        
+        <div class="instructions">
+            <h3>Next Steps:</h3>
+            <ol>
+                <li>Check your email inbox (and spam folder)</li>
+                <li>Click the verification link in the email</li>
+                <li>Return to this page to complete setup</li>
+            </ol>
+        </div>
+        
+        <div class="resend-section">
+            <h3>Didn't receive the email?</h3>
+            <p>Check your spam folder or click the button below to resend the verification email.</p>
+            <button class="btn" id="resend-btn" onclick="resendVerification()">
+                Resend Verification Email
+            </button>
+        </div>
+        
+        <div id="status-message" class="hidden"></div>
+        
+        <div style="margin-top: 24px;">
+            <a href="/onboarding.html" class="btn btn-secondary">Back to Sign Up</a>
+        </div>
+        
+        <div class="footer">
+            <p>Need help? <a href="/support.html">Contact Support</a></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import apiClient from './src/api.js';
+
+        // Get email from URL parameters or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email') || localStorage.getItem('pending_verification_email');
+        
+        if (email) {
+            document.getElementById('email-display').textContent = email;
+            localStorage.setItem('pending_verification_email', email);
+        } else {
+            // No email found, redirect to signup
+            window.location.href = '/onboarding.html';
+        }
+
+        // Check if user came from email verification
+        const token = urlParams.get('token');
+        const type = urlParams.get('type');
+        
+        if (token && type === 'signup') {
+            showStatus('Email verified successfully! Redirecting to dashboard...', 'success');
+            setTimeout(() => {
+                window.location.href = '/business-dashboard.html';
+            }, 2000);
+        }
+
+        // Global function for resend button
+        window.resendVerification = async function() {
+            const btn = document.getElementById('resend-btn');
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>Sending...';
+            
+            try {
+                const result = await apiClient.resendVerification(email);
+                
+                if (result.success) {
+                    showStatus('Verification email sent successfully!', 'success');
+                } else {
+                    showStatus(result.message, 'error');
+                }
+            } catch (error) {
+                showStatus('Failed to resend verification email. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        };
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.classList.remove('hidden');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Auto-check for verification every 30 seconds
+        setInterval(async () => {
+            try {
+                // Try to get user info to check if verified
+                const response = await apiClient.request('/api/auth/verify');
+                if (response.valid) {
+                    showStatus('Email verified! Redirecting to dashboard...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/business-dashboard.html';
+                    }, 2000);
+                }
+            } catch (error) {
+                // User not verified yet, continue waiting
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
