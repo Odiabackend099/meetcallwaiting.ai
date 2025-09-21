@@ -14,11 +14,15 @@
       "use": "@vercel/static"
     },
     {
-      "src": "demo.html",
+      "src": "business-dashboard.html",
       "use": "@vercel/static"
     },
     {
-      "src": "dashboard.html",
+      "src": "business-user-test.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "production-ready-test.html",
       "use": "@vercel/static"
     },
     {
@@ -31,6 +35,10 @@
     },
     {
       "src": "pricing.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "demo.html",
       "use": "@vercel/static"
     },
     {
@@ -56,12 +64,16 @@
       "dest": "/onboarding.html"
     },
     {
-      "src": "/demo",
-      "dest": "/demo.html"
+      "src": "/dashboard",
+      "dest": "/business-dashboard.html"
     },
     {
-      "src": "/dashboard",
-      "dest": "/dashboard.html"
+      "src": "/test",
+      "dest": "/production-ready-test.html"
+    },
+    {
+      "src": "/user-test",
+      "dest": "/business-user-test.html"
     },
     {
       "src": "/how-it-works",
@@ -74,6 +86,10 @@
     {
       "src": "/pricing",
       "dest": "/pricing.html"
+    },
+    {
+      "src": "/demo",
+      "dest": "/demo.html"
     },
     {
       "src": "/support",
@@ -123,6 +139,14 @@
         {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';"
         }
       ]
     },
@@ -145,12 +169,10 @@
       ]
     }
   ],
-  "functions": {
-    "app/api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "regions": ["iad1"],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
