@@ -35,11 +35,14 @@ class ApiClient {
     this.authToken = null;
   }
 
-  // Generic request method
+  // Generic request method with enhanced security and retry logic
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+    const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     const headers = {
       ...this.defaultHeaders,
+      'X-Request-ID': requestId,
       ...options.headers,
     };
 
@@ -48,27 +51,79 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${this.authToken}`;
     }
 
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      });
+    // Retry configuration
+    const maxRetries = 3;
+    const retryDelay = [250, 500, 1000]; // Exponential backoff
 
-      // Handle authentication errors
-      if (response.status === 401) {
-        this.clearAuthToken();
-        throw new Error('Authentication required. Please log in again.');
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch(url, {
+          ...options,
+          headers,
+          // Add timeout
+          signal: AbortSignal.timeout(30000) // 30 second timeout
+        });
+
+        // Handle authentication errors
+        if (response.status === 401) {
+          this.clearAuthToken();
+          // Redirect to login page
+          if (typeof window !== 'undefined') {
+            window.location.href = '/onboarding.html';
+          }
+          throw new Error('Authentication required. Please log in again.');
+        }
+
+        // Handle rate limiting
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('Retry-After');
+          const delay = retryAfter ? parseInt(retryAfter) * 1000 : retryDelay[attempt] || 1000;
+          
+          if (attempt < maxRetries) {
+            console.warn(`Rate limited. Retrying after ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          error.status = response.status;
+          error.code = errorData.code;
+          error.requestId = requestId;
+          throw error;
+        }
+
+        return await response.json();
+      } catch (error) {
+        // Don't retry on client errors (4xx) except 429
+        if (error.status >= 400 && error.status < 500 && error.status !== 429) {
+          throw error;
+        }
+
+        // Don't retry on last attempt
+        if (attempt === maxRetries) {
+          console.error('API request failed after all retries:', {
+            endpoint,
+            requestId,
+            error: error.message,
+            attempts: attempt + 1
+          });
+          throw error;
+        }
+
+        // Wait before retry
+        const delay = retryDelay[attempt] || 1000;
+        console.warn(`API request failed, retrying in ${delay}ms...`, {
+          endpoint,
+          requestId,
+          attempt: attempt + 1,
+          error: error.message
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
     }
   }
 

@@ -1,53 +1,29 @@
-// @ts-nocheck
 import { Router, Request, Response } from 'express';
 import Stripe from 'stripe';
-// Import the event handler
 import { processEvent } from '../utils/eventHandler.js';
-// Import database utilities
 import { findOrderByPaymentLinkId, updateOrderStatus } from '../utils/database.js';
 import { supabase } from '../utils/supabaseClient.js';
-import express from 'express';
+import { verifyStripeSignature, verifyPayPalSignature, verifyTwilioSignature } from '../middleware/twilioSignature.js';
 
 export const router = Router();
 
 // Middleware to capture raw body for Stripe webhook verification
 router.use('/stripe', express.raw({ type: 'application/json' }));
 
-// Stripe webhook with proper raw body handling and idempotency
-router.post('/stripe', async (req: Request, res: Response) => {
-  const sig = req.headers['stripe-signature'];
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const requestId = req.headers['x-request-id'] as string || req.headers['x-correlation-id'] as string || 'unknown';
-  
-  // Get raw body for signature verification
-  const rawBody = req.body;
-  
-  let event;
-  
-  if (!webhookSecret) {
-    console.warn('STRIPE_WEBHOOK_SECRET not set, skipping signature verification');
-    // In production, you should not process the webhook without verification
-    return res.status(500).send('Webhook secret not configured');
-  }
-  
-  if (!sig) {
-    return res.status(400).send('Missing stripe-signature header');
-  }
+// Stripe webhook with enhanced security and idempotency
+router.post('/stripe', verifyStripeSignature, async (req: Request, res: Response) => {
+  const requestId = (req as any).requestId || 'unknown';
   
   try {
-    // Verify webhook signature
-    event = Stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
-  } catch (err: any) {
-    console.error('Webhook signature verification failed.', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+    // Parse the verified event
+    const event = req.body;
   
-  // Check idempotency - has this event been processed before?
-  const { data: existingEvent, error: idempotencyError } = await supabase
-    .from('stripe_events')
-    .select('event_id, order_id')
-    .eq('event_id', event.id)
-    .single();
+    // Check idempotency - has this event been processed before?
+    const { data: existingEvent, error: idempotencyError } = await supabase
+      .from('stripe_events')
+      .select('event_id, order_id')
+      .eq('event_id', event.id)
+      .single();
   
   if (idempotencyError && idempotencyError.code !== 'PGRST116') {
     console.error('Error checking idempotency:', idempotencyError);

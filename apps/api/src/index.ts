@@ -1,9 +1,9 @@
-// @ts-nocheck
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import pinoHttp from 'pino-http';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import { router as ivr } from './routes/ivr.js';
 import { router as webhooks } from './routes/webhooks.js';
 import { router as orders } from './routes/orders.js';
@@ -15,39 +15,89 @@ import { router as health } from './routes/health.js';
 import { router as config } from './routes/config.js';
 import { router as notifications } from './routes/notifications.js';
 import { router as auth } from './routes/auth.js';
+import { requestId } from './middleware/auth.js';
 
 const app = express();
 
-// Rate limiting middleware (100 requests per 15 minutes per IP)
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+// Request ID middleware for tracing
+app.use(requestId);
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID']
+};
+app.use(cors(corsOptions));
+
+// Rate limiting middleware (configurable)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
   message: {
     error: 'Too many requests',
-    message: 'Rate limit exceeded. Please try again later.'
+    message: 'Rate limit exceeded. Please try again later.',
+    code: 'RATE_LIMIT_EXCEEDED'
   },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/health' || req.path === '/';
+  }
 });
 
 app.use(limiter);
-app.use(express.json({ limit: '1mb' }));
+
+// Body parsing middleware
+app.use(express.json({ 
+  limit: '1mb',
+  verify: (req, res, buf) => {
+    // Store raw body for webhook signature verification
+    (req as any).rawBody = buf;
+  }
+}));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Enhanced logging with PII protection
 app.use(pinoHttp({ 
   autoLogging: true,
   serializers: {
     req: (req) => ({
       method: req.method,
       url: req.url,
+      requestId: (req as any).requestId,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
       // Redact sensitive headers for PII protection
       headers: {
         ...req.headers,
         authorization: req.headers.authorization ? '[REDACTED]' : undefined,
         cookie: req.headers.cookie ? '[REDACTED]' : undefined,
+        'x-api-key': req.headers['x-api-key'] ? '[REDACTED]' : undefined,
       }
+    }),
+    res: (res) => ({
+      statusCode: res.statusCode,
+      requestId: (res as any).requestId
     })
   }
 }));
-app.use(cors());
 
 // Enhanced health check endpoint
 app.use('/health', health);
