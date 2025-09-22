@@ -1156,31 +1156,10 @@
                     try {
                         console.log('API client status:', typeof apiClient, apiClient ? 'initialized' : 'not initialized'); // Debug log
                         
-                        // Check if API client is available
+                        // Production mode - API client must be available
                         if (!apiClient || typeof apiClient.register !== 'function') {
-                            console.warn('API client not available, using fallback mode');
-                            
-                            // Fallback: Store data locally and show success message
-                            onboardingState.accountData = {
-                                name: name.trim(),
-                                email: email.trim(),
-                                password: password,
-                                acceptTerms: acceptTerms
-                            };
-                            
-                            // Store in localStorage as backup
-                            localStorage.setItem('onboarding_data', JSON.stringify(onboardingState.accountData));
-                            
-                            showModal(
-                                'Account Setup Started!',
-                                `Welcome ${name.trim()}! Your account setup has begun. You can continue with the business setup process.`,
-                                'success'
-                            );
-                            
-                            // Proceed to next step
-                            setTimeout(() => {
-                                nextStep(1);
-                            }, 2000);
+                            console.error('API client not available in production mode');
+                            alert('Service temporarily unavailable. Please try again later.');
                             return;
                         }
                         
@@ -1307,39 +1286,36 @@
                     console.log('Submitting business data:', businessData);
                     
                     try {
-                        // Submit to backend
-                        if (apiClient && typeof apiClient.createMerchant === 'function') {
-                            const response = await apiClient.createMerchant(businessData);
+                        // Submit to backend - Production mode
+                        if (!apiClient || typeof apiClient.createMerchant !== 'function') {
+                            console.error('API client not available in production mode');
+                            alert('Service temporarily unavailable. Please try again later.');
+                            submitButton.textContent = originalText;
+                            submitButton.disabled = false;
+                            return;
+                        }
+
+                        const response = await apiClient.createMerchant(businessData);
+                        
+                        if (response.success) {
+                            currentMerchant = response.data;
+                            console.log('Merchant created successfully:', currentMerchant);
                             
-                            if (response.success) {
-                                currentMerchant = response.data;
-                                console.log('Merchant created successfully:', currentMerchant);
-                                
-                                // Automatically assign a number
-                                const numberResponse = await apiClient.allocateNumber(currentMerchant.id);
-                                if (numberResponse.success) {
-                                    onboardingState.assignedNumber = numberResponse.data;
-                                    console.log('Number assigned:', onboardingState.assignedNumber);
-                                }
-                                
-                                submitButton.textContent = originalText;
-                                submitButton.disabled = false;
-                                nextStep(2);
-                            } else {
-                                console.error('Failed to create merchant:', response.message);
-                                alert('Failed to create business profile: ' + response.message);
-                                submitButton.textContent = originalText;
-                                submitButton.disabled = false;
+                            // Automatically assign a number
+                            const numberResponse = await apiClient.allocateNumber(currentMerchant.id);
+                            if (numberResponse.success) {
+                                onboardingState.assignedNumber = numberResponse.data;
+                                console.log('Number assigned:', onboardingState.assignedNumber);
                             }
-                        } else {
-                            // Fallback mode
-                            currentMerchant = { id: 'mock_' + Date.now(), ...businessData };
-                            onboardingState.assignedNumber = '+1 (555) 123-4567';
-                            console.log('Mock merchant created:', currentMerchant);
                             
                             submitButton.textContent = originalText;
                             submitButton.disabled = false;
                             nextStep(2);
+                        } else {
+                            console.error('Failed to create merchant:', response.message);
+                            alert('Failed to create business profile: ' + response.message);
+                            submitButton.textContent = originalText;
+                            submitButton.disabled = false;
                         }
                     } catch (error) {
                         console.error('Error submitting business data:', error);
