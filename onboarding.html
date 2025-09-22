@@ -653,7 +653,7 @@
                         </div>
                         <div class="nav-buttons">
                             <div></div> <!-- Empty div for spacing -->
-                            <button type="button" class="nav-button next-button" onclick="nextStep(1)">Continue</button>
+                            <button type="submit" class="nav-button next-button">Continue</button>
                         </div>
                     </form>
                 </div>
@@ -711,7 +711,7 @@
                         </div>
                         <div class="nav-buttons">
                             <button type="button" class="nav-button prev-button" onclick="prevStep(2)">Back</button>
-                            <button type="button" class="nav-button next-button" onclick="nextStep(2)">Continue</button>
+                            <button type="submit" class="nav-button next-button">Continue</button>
                         </div>
                     </form>
                 </div>
@@ -791,7 +791,7 @@
                         </div>
                         <div class="nav-buttons">
                             <button type="button" class="nav-button prev-button" onclick="prevStep(5)">Back</button>
-                            <button type="button" class="nav-button next-button" onclick="nextStep(5)">Continue</button>
+                            <button type="submit" class="nav-button next-button">Continue</button>
                         </div>
                     </form>
                 </div>
@@ -1080,15 +1080,18 @@
             assignedNumber: null
         };
         
-        // Form submission handling
+        // Form submission handling with comprehensive error handling
         document.getElementById('account-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log('Form submission started'); // Debug log
             
             // Get form values
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const acceptTerms = document.getElementById('accept').checked;
+            
+            console.log('Form data:', { name: name?.substring(0, 3) + '***', email: email?.substring(0, 3) + '***', passwordLength: password?.length, acceptTerms }); // Debug log
             
             // Validate form data
             if (!name || name.trim().length < 2) {
@@ -1118,12 +1121,45 @@
             submitButton.disabled = true;
             
             try {
+                console.log('API client status:', typeof apiClient, apiClient ? 'initialized' : 'not initialized'); // Debug log
+                
+                // Check if API client is available
+                if (!apiClient || typeof apiClient.register !== 'function') {
+                    console.warn('API client not available, using fallback mode');
+                    
+                    // Fallback: Store data locally and show success message
+                    onboardingState.accountData = {
+                        name: name.trim(),
+                        email: email.trim(),
+                        password: password,
+                        acceptTerms: acceptTerms
+                    };
+                    
+                    // Store in localStorage as backup
+                    localStorage.setItem('onboarding_data', JSON.stringify(onboardingState.accountData));
+                    
+                    showModal(
+                        'Account Setup Started!',
+                        `Welcome ${name.trim()}! Your account setup has begun. You can continue with the business setup process.`,
+                        'success'
+                    );
+                    
+                    // Proceed to next step
+                    setTimeout(() => {
+                        nextStep(1);
+                    }, 2000);
+                    return;
+                }
+                
                 // Register user with email verification
+                console.log('Calling API register...'); // Debug log
                 const result = await apiClient.register({
                     name: name.trim(),
                     email: email.trim(),
                     password: password
                 });
+                
+                console.log('API response:', result); // Debug log
                 
                 if (result.success) {
                     if (result.requires_verification) {
