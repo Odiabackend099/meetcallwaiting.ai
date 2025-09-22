@@ -4,7 +4,7 @@
 
 const config = {
   // API Configuration
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://your-api-domain.com',
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://16.28.128.83:8787',
   APP_ENV: import.meta.env.VITE_APP_ENV || 'production',
   
   // Feature Flags
