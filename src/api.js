@@ -51,6 +51,9 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${this.authToken}`;
     }
 
+    // Production mode - no fallbacks, real API calls only
+    console.log(`Making API request to: ${url}`);
+
     // Retry configuration
     const maxRetries = 3;
     const retryDelay = [250, 500, 1000]; // Exponential backoff
