@@ -16,6 +16,8 @@ import { router as config } from './routes/config.js';
 import { router as notifications } from './routes/notifications.js';
 import { router as auth } from './routes/auth.js';
 import { router as dashboard } from './routes/dashboard.js';
+import { router as payments } from './routes/payments.js';
+import { router as tts } from './routes/tts.js';
 import { requestId } from './middleware/auth.js';
 
 const app = express();
@@ -121,6 +123,8 @@ app.use('/api/consent', consent);
 app.use('/api/numbers', numberPool);
 app.use('/api/config', config);
 app.use('/api/notifications', notifications);
+app.use('/api/payments', payments);
+app.use('/api/tts', tts);
 
 const port = process.env.PORT || 8787;
 app.listen(port, () => {

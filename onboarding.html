@@ -575,6 +575,26 @@
                 width: 100%;
             }
         }
+
+        /* Plan Selection Styles */
+        .pricing-card.selected {
+            border-color: var(--success);
+            background: linear-gradient(135deg, var(--success), var(--primary));
+            color: var(--white);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.selected .pricing-title,
+        .pricing-card.selected .pricing-desc,
+        .pricing-card.selected .pricing-price,
+        .pricing-card.selected .pricing-features li {
+            color: var(--white);
+        }
+
+        .pricing-card.selected .pricing-button {
+            background: var(--white);
+            color: var(--success);
+        }
     </style>
 </head>
 <body>
@@ -621,10 +641,14 @@
                     </div>
                     <div class="step-indicator" id="step-indicator-5">
                         <div class="step-circle">5</div>
-                        <div class="step-label">Services</div>
+                        <div class="step-label">Plan</div>
                     </div>
                     <div class="step-indicator" id="step-indicator-6">
                         <div class="step-circle">6</div>
+                        <div class="step-label">Services</div>
+                    </div>
+                    <div class="step-indicator" id="step-indicator-7">
+                        <div class="step-circle">7</div>
                         <div class="step-label">Test</div>
                     </div>
                 </div>
@@ -759,8 +783,61 @@
                     </div>
                 </div>
 
-                <!-- Step 5: Services -->
+                <!-- Step 5: Choose Plan -->
                 <div class="step-content" id="step-5">
+                    <h2 class="step-title">Choose Your Plan</h2>
+                    <p style="text-align: center; margin-bottom: 32px; color: var(--slate-600);">Start with a 7-day free trial. No credit card required!</p>
+                    
+                    <div class="pricing-grid" style="margin-bottom: 32px;">
+                        <div class="pricing-card" data-plan="starter">
+                            <h3 class="pricing-title">Starter Plan</h3>
+                            <p class="pricing-desc">Perfect for small businesses</p>
+                            <div class="pricing-price">$29<span>/month</span></div>
+                            <ul class="pricing-features">
+                                <li>✅ AI Call Answering</li>
+                                <li>✅ Basic Analytics</li>
+                                <li>✅ 100 calls/month</li>
+                                <li>✅ Email Support</li>
+                            </ul>
+                            <button class="pricing-button" onclick="selectPlan('starter')">Start Free Trial</button>
+                        </div>
+                        <div class="pricing-card featured" data-plan="pro">
+                            <div class="featured-badge">Most Popular</div>
+                            <h3 class="pricing-title">Pro Plan</h3>
+                            <p class="pricing-desc">Advanced features for growing businesses</p>
+                            <div class="pricing-price">$79<span>/month</span></div>
+                            <ul class="pricing-features">
+                                <li>✅ Everything in Starter</li>
+                                <li>✅ WhatsApp Follow-ups</li>
+                                <li>✅ Advanced Analytics</li>
+                                <li>✅ 500 calls/month</li>
+                                <li>✅ Priority Support</li>
+                            </ul>
+                            <button class="pricing-button" onclick="selectPlan('pro')">Start Free Trial</button>
+                        </div>
+                        <div class="pricing-card" data-plan="premium">
+                            <h3 class="pricing-title">Premium Plan</h3>
+                            <p class="pricing-desc">Full features for established businesses</p>
+                            <div class="pricing-price">$149<span>/month</span></div>
+                            <ul class="pricing-features">
+                                <li>✅ Everything in Pro</li>
+                                <li>✅ WhatsApp Confirmations</li>
+                                <li>✅ Full Reporting</li>
+                                <li>✅ Unlimited calls</li>
+                                <li>✅ 24/7 Support</li>
+                            </ul>
+                            <button class="pricing-button" onclick="selectPlan('premium')">Start Free Trial</button>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <button type="button" class="nav-button prev-button" onclick="prevStep(5)">Back</button>
+                        <button type="button" class="nav-button next-button" id="plan-continue" onclick="nextStep(5)" disabled>Select a Plan to Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 6: Services -->
+                <div class="step-content" id="step-6">
                     <h2 class="step-title">What do you offer?</h2>
                     <form id="services-form">
                         <div class="form-group">
@@ -790,14 +867,14 @@
                             </div>
                         </div>
                         <div class="nav-buttons">
-                            <button type="button" class="nav-button prev-button" onclick="prevStep(5)">Back</button>
+                            <button type="button" class="nav-button prev-button" onclick="prevStep(6)">Back</button>
                             <button type="submit" class="nav-button next-button">Continue</button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Step 6: Test Your Flows -->
-                <div class="step-content" id="step-6">
+                <!-- Step 7: Test Your Flows -->
+                <div class="step-content" id="step-7">
                     <h2 class="step-title">Test your flows</h2>
                     <div class="test-buttons">
                         <button class="test-button" onclick="showModal('order')">Test Order</button>
@@ -805,7 +882,7 @@
                         <button class="test-button" onclick="showModal('voicemail')">Test Voicemail</button>
                     </div>
                     <div class="nav-buttons">
-                        <button type="button" class="nav-button prev-button" onclick="prevStep(6)">Back</button>
+                        <button type="button" class="nav-button prev-button" onclick="prevStep(7)">Back</button>
                         <a href="/dashboard?welcome=true" class="nav-button next-button">Go Live</a>
                     </div>
                 </div>
@@ -850,6 +927,7 @@
         let onboardingState = {
             accountData: null,
             businessData: null,
+            selectedPlan: null,
             connectedServices: {
                 stripe: false,
                 calendar: false,
@@ -892,7 +970,7 @@
         }
         
         function nextStep(currentStep) {
-            if (currentStep < 6) {
+            if (currentStep < 7) {
                 showStep(currentStep + 1);
             }
         }
@@ -937,6 +1015,10 @@
                 'voicemail': {
                     title: 'Test Voicemail Flow',
                     body: 'This would simulate a customer calling your number and leaving a voicemail when you\'re unavailable.'
+                },
+                'plan-selected': {
+                    title: 'Plan Selected!',
+                    body: 'You\'ve successfully selected your plan. You\'ll start with a 7-day free trial with no credit card required!'
                 }
             };
             
@@ -1095,11 +1177,36 @@
             alert(`Test call feature: In a real implementation, this would initiate a test call to ${onboardingState.assignedNumber} to verify the IVR flow is working.`);
         }
         
+        // Plan selection function
+        function selectPlan(planType) {
+            // Clear previous selection
+            document.querySelectorAll('.pricing-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Mark selected plan
+            const selectedCard = document.querySelector(`[data-plan="${planType}"]`);
+            selectedCard.classList.add('selected');
+            
+            // Store selected plan
+            onboardingState.selectedPlan = planType;
+            
+            // Enable continue button
+            const continueButton = document.getElementById('plan-continue');
+            continueButton.disabled = false;
+            continueButton.textContent = `Continue with ${planType.charAt(0).toUpperCase() + planType.slice(1)} Plan`;
+            continueButton.style.background = 'var(--primary)';
+            
+            // Show success message
+            showModal('plan-selected', `Great choice! You've selected the ${planType.charAt(0).toUpperCase() + planType.slice(1)} Plan. You'll start with a 7-day free trial.`);
+        }
+
         // Make functions global for onclick handlers
         window.connectStripe = connectStripe;
         window.connectCalendar = connectCalendar;
         window.connectEmail = connectEmail;
         window.testCall = testCall;
+        window.selectPlan = selectPlan;
         window.showModal = showModal;
         window.closeModal = closeModal;
         window.nextStep = nextStep;
@@ -1334,7 +1441,7 @@
                 console.log('Services form found, attaching handler');
                 servicesForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    nextStep(5);
+                    nextStep(6);
                 });
             } else {
                 console.error('Services form not found!');
@@ -1345,19 +1452,51 @@
         function initializeApp() {
             console.log('Initializing app...');
             
-            // Try to load API client
-            try {
-                // This will work if the module system is working
-                import('./src/api.js').then(module => {
+            // Try to load API client with multiple fallback strategies
+            const loadApiClient = async () => {
+                try {
+                    // Strategy 1: Dynamic import
+                    const module = await import('./src/api.js');
                     apiClient = module.default;
-                    console.log('API client loaded successfully');
-                }).catch(error => {
-                    console.warn('Failed to load API client module:', error);
-                    // Continue without API client - fallback mode will be used
-                });
-            } catch (error) {
-                console.warn('Module import not supported, using fallback mode');
-            }
+                    console.log('API client loaded successfully via import');
+                    return true;
+                } catch (error) {
+                    console.warn('Dynamic import failed:', error);
+                    
+                    try {
+                        // Strategy 2: Global window object
+                        if (typeof window !== 'undefined' && window.ApiClient) {
+                            apiClient = new window.ApiClient();
+                            console.log('API client loaded from window object');
+                            return true;
+                        }
+                    } catch (error) {
+                        console.warn('Window API client failed:', error);
+                    }
+                    
+                    try {
+                        // Strategy 3: Fetch and eval (for development)
+                        const response = await fetch('./src/api.js');
+                        const code = await response.text();
+                        const script = document.createElement('script');
+                        script.textContent = code;
+                        document.head.appendChild(script);
+                        
+                        if (typeof ApiClient !== 'undefined') {
+                            apiClient = new ApiClient();
+                            console.log('API client loaded via script injection');
+                            return true;
+                        }
+                    } catch (error) {
+                        console.warn('Script injection failed:', error);
+                    }
+                    
+                    console.warn('All API client loading strategies failed, using fallback mode');
+                    return false;
+                }
+            };
+            
+            loadApiClient();
             
             // Initialize form handlers
             initializeFormHandlers();

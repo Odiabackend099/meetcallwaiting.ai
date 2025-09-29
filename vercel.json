@@ -52,6 +52,26 @@
     {
       "src": "legal/terms.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "seamless-voice-assistant.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "voice-only-ai.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "bulletproof-streaming-ai.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "chat-demo.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "chat-widget.js",
+      "use": "@vercel/static"
     }
   ],
   "rewrites": [
@@ -100,6 +120,22 @@
       "destination": "/legal/terms.html"
     },
     {
+      "source": "/voice-assistant",
+      "destination": "/seamless-voice-assistant.html"
+    },
+    {
+      "source": "/voice-ai",
+      "destination": "/voice-only-ai.html"
+    },
+    {
+      "source": "/bulletproof-voice",
+      "destination": "/bulletproof-streaming-ai.html"
+    },
+    {
+      "source": "/chat-demo",
+      "destination": "/chat-demo.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "https://your-api-domain.com/api/$1"
     }
@@ -141,7 +177,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.groq.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: http://localhost:3001; frame-ancestors 'none';"
         }
       ]
     },

@@ -205,7 +205,31 @@
     </div>
 
     <script type="module">
-        import apiClient from './src/api.js';
+        let apiClient = null;
+        
+        // Load API client with fallback
+        try {
+            const module = await import('./src/api.js');
+            apiClient = module.default;
+            console.log('Dashboard: API client loaded successfully');
+        } catch (error) {
+            console.error('Dashboard: Failed to load API client:', error);
+            // Fallback: Create a mock API client
+            apiClient = {
+                getAuthToken: () => localStorage.getItem('auth_token'),
+                getDashboardData: async () => {
+                    console.warn('Using mock API client - no real data');
+                    return {
+                        success: true,
+                        data: {
+                            merchant: { name: 'Demo Business', phone: '+1 (555) 123-4567' },
+                            kpi: { totalCalls: 0, paidOrders: 0, confirmedAppointments: 0, revenue: 0 },
+                            recentActivity: []
+                        }
+                    };
+                }
+            };
+        }
 
         let currentBusiness = null;
         let dashboardData = null;

@@ -643,6 +643,227 @@ class ApiClient {
       };
     }
   }
+
+  // Payment methods
+  async createSubscriptionPaymentLink(planType, phoneNumber) {
+    try {
+      const response = await this.request('/api/payments/create-subscription-link', {
+        method: 'POST',
+        body: JSON.stringify({ planType, phoneNumber })
+      });
+      
+      return {
+        success: true,
+        message: response.message || 'Payment link created successfully',
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error creating subscription payment link:', error);
+      return {
+        success: false,
+        message: 'Failed to create payment link: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async verifyPayment(transactionId, txRef) {
+    try {
+      const response = await this.request('/api/payments/verify', {
+        method: 'POST',
+        body: JSON.stringify({ transaction_id: transactionId, tx_ref: txRef })
+      });
+      
+      return {
+        success: true,
+        message: response.message || 'Payment verified successfully',
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+      return {
+        success: false,
+        message: 'Failed to verify payment: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async getPaymentHistory() {
+    try {
+      const response = await this.request('/api/payments/history');
+      
+      return {
+        success: true,
+        data: response.data || []
+      };
+    } catch (error) {
+      console.error('Error fetching payment history:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch payment history: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async getCurrentSubscription() {
+    try {
+      const response = await this.request('/api/payments/subscription');
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch subscription: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async cancelSubscription() {
+    try {
+      const response = await this.request('/api/payments/cancel-subscription', {
+        method: 'POST'
+      });
+      
+      return {
+        success: true,
+        message: response.message || 'Subscription cancelled successfully'
+      };
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      return {
+        success: false,
+        message: 'Failed to cancel subscription: ' + error.message
+      };
+    }
+  }
+
+  // TTS methods
+  async generateSpeech(text, options = {}) {
+    try {
+      const response = await this.request('/api/tts/generate', {
+        method: 'POST',
+        body: JSON.stringify({ text, ...options })
+      });
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error generating speech:', error);
+      return {
+        success: false,
+        message: 'Failed to generate speech: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async generateGreeting(businessName, options = {}) {
+    try {
+      const response = await this.request('/api/tts/greeting', {
+        method: 'POST',
+        body: JSON.stringify({ businessName, ...options })
+      });
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error generating greeting:', error);
+      return {
+        success: false,
+        message: 'Failed to generate greeting: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async generateAppointmentConfirmation(businessName, appointmentDate, appointmentTime, options = {}) {
+    try {
+      const response = await this.request('/api/tts/appointment-confirmation', {
+        method: 'POST',
+        body: JSON.stringify({ businessName, appointmentDate, appointmentTime, ...options })
+      });
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error generating appointment confirmation:', error);
+      return {
+        success: false,
+        message: 'Failed to generate appointment confirmation: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async generateOrderConfirmation(businessName, orderTotal, currency, options = {}) {
+    try {
+      const response = await this.request('/api/tts/order-confirmation', {
+        method: 'POST',
+        body: JSON.stringify({ businessName, orderTotal, currency, ...options })
+      });
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error generating order confirmation:', error);
+      return {
+        success: false,
+        message: 'Failed to generate order confirmation: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async getAvailableVoices() {
+    try {
+      const response = await this.request('/api/tts/voices');
+      
+      return {
+        success: true,
+        data: response.data || []
+      };
+    } catch (error) {
+      console.error('Error fetching voices:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch voices: ' + error.message,
+        data: null
+      };
+    }
+  }
+
+  async getSupportedLanguages() {
+    try {
+      const response = await this.request('/api/tts/languages');
+      
+      return {
+        success: true,
+        data: response.data || []
+      };
+    } catch (error) {
+      console.error('Error fetching languages:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch languages: ' + error.message,
+        data: null
+      };
+    }
+  }
 }
 
 // Export a singleton instance

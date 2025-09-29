@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget Demo - CallWaiting.ai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #01C6D6;
+            --primary-dark: #0A5AA8;
+            --primary-light: #6FE7F2;
+            --accent: #16E0C1;
+            --navy-900: #0B2142;
+            --navy-700: #123A69;
+            --slate-600: #64748B;
+            --slate-100: #F1F5F9;
+            --white: #FFFFFF;
+            --gradient-hero: linear-gradient(135deg, #01C6D6 0%, #0A5AA8 50%, #16E0C1 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--navy-900);
+            background-color: var(--slate-100);
+            line-height: 1.6;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .demo-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .demo-subtitle {
+            font-size: 20px;
+            color: var(--slate-600);
+            margin-bottom: 32px;
+        }
+
+        .demo-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(1, 198, 214, 0.15);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--navy-900);
+        }
+
+        .feature-description {
+            color: var(--slate-600);
+        }
+
+        .demo-instructions {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(1, 198, 214, 0.15);
+        }
+
+        .instructions-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--navy-900);
+        }
+
+        .instructions-list {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .instructions-list li {
+            counter-increment: step-counter;
+            margin-bottom: 16px;
+            padding-left: 40px;
+            position: relative;
+            color: var(--slate-600);
+        }
+
+        .instructions-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background: var(--gradient-hero);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 4px 12px rgba(1, 198, 214, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--slate-600);
+        }
+
+        .status-dot.online {
+            background: #10B981;
+            animation: pulse-green 2s infinite;
+        }
+
+        .status-dot.offline {
+            background: #EF4444;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .demo-note {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 40px;
+            border-left: 4px solid #F59E0B;
+        }
+
+        .demo-note-title {
+            font-weight: 600;
+            color: #92400E;
+            margin-bottom: 8px;
+        }
+
+        .demo-note-text {
+            color: #92400E;
+            font-size: 14px;
+        }
+
+        .back-to-home {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: var(--gradient-hero);
+            color: var(--white);
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 24px;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .demo-title {
+                font-size: 36px;
+            }
+
+            .demo-features {
+                grid-template-columns: 1fr;
+            }
+
+            .status-indicators {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="demo-title">🎙️ Chat Widget Demo</h1>
+            <p class="demo-subtitle">Experience CallWaiting.ai's Voice-Powered Chat Assistant</p>
+        </div>
+
+        <div class="status-indicators">
+            <div class="status-indicator">
+                <div class="status-dot" id="tts-status"></div>
+                <span id="tts-text">TTS Server</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot" id="groq-status"></div>
+                <span id="groq-text">Groq AI</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot" id="speech-status"></div>
+                <span id="speech-text">Speech Recognition</span>
+            </div>
+        </div>
+
+        <div class="demo-features">
+            <div class="feature-card">
+                <div class="feature-icon">🎤</div>
+                <h3 class="feature-title">Voice Input</h3>
+                <p class="feature-description">Hold to speak with natural voice recognition powered by Web Speech API</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">AI Responses</h3>
+                <p class="feature-description">Get intelligent responses from Groq's Llama 3.1 70B model</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔊</div>
+                <h3 class="feature-title">High-Quality TTS</h3>
+                <p class="feature-description">Listen to responses with Microsoft Edge neural voices</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3 class="feature-title">Text Chat</h3>
+                <p class="feature-description">Type messages when you prefer text communication</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3 class="feature-title">Mobile Ready</h3>
+                <p class="feature-description">Fully responsive design that works on all devices</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3 class="feature-title">Professional UI</h3>
+                <p class="feature-description">Beautiful, modern interface that matches your brand</p>
+            </div>
+        </div>
+
+        <div class="demo-instructions">
+            <h2 class="instructions-title">How to Test the Chat Widget</h2>
+            <ol class="instructions-list">
+                <li>Look for the chat widget in the bottom-right corner of this page</li>
+                <li>Click the chat icon to open the conversation window</li>
+                <li>Try both text and voice modes using the toggle buttons</li>
+                <li>For voice mode: Hold down the voice button to speak</li>
+                <li>Ask questions about CallWaiting.ai, business communication, or anything else</li>
+                <li>Listen to the AI responses with high-quality neural voices</li>
+                <li>Test on mobile by resizing your browser window</li>
+            </ol>
+        </div>
+
+        <div class="demo-note">
+            <div class="demo-note-title">🔧 Technical Requirements</div>
+            <div class="demo-note-text">
+                <strong>For full functionality:</strong> Make sure the TTS server is running on localhost:3001. 
+                Voice features require HTTPS in production or localhost for development. 
+                The chat widget will gracefully fallback to text-only mode if speech features aren't available.
+            </div>
+        </div>
+
+        <div class="back-to-home">
+            <a href="/" class="back-button">← Back to Homepage</a>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <script src="chat-widget.js"></script>
+
+    <!-- Status Checker -->
+    <script>
+        // Check service status
+        async function checkServices() {
+            // Check TTS Server
+            try {
+                const ttsResponse = await fetch('http://localhost:3001/health');
+                if (ttsResponse.ok) {
+                    document.getElementById('tts-status').classList.add('online');
+                    document.getElementById('tts-text').textContent = 'TTS Server ✓';
+                } else {
+                    document.getElementById('tts-status').classList.add('offline');
+                    document.getElementById('tts-text').textContent = 'TTS Server ✗';
+                }
+            } catch (error) {
+                document.getElementById('tts-status').classList.add('offline');
+                document.getElementById('tts-text').textContent = 'TTS Server ✗';
+            }
+
+            // Check Groq API
+            try {
+                const groqResponse = await fetch('https://api.groq.com/openai/v1/models', {
+                    method: 'HEAD'
+                });
+                if (groqResponse.ok) {
+                    document.getElementById('groq-status').classList.add('online');
+                    document.getElementById('groq-text').textContent = 'Groq AI ✓';
+                } else {
+                    document.getElementById('groq-status').classList.add('offline');
+                    document.getElementById('groq-text').textContent = 'Groq AI ✗';
+                }
+            } catch (error) {
+                document.getElementById('groq-status').classList.add('offline');
+                document.getElementById('groq-text').textContent = 'Groq AI ✗';
+            }
+
+            // Check Speech Recognition
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                document.getElementById('speech-status').classList.add('online');
+                document.getElementById('speech-text').textContent = 'Speech Recognition ✓';
+            } else {
+                document.getElementById('speech-status').classList.add('offline');
+                document.getElementById('speech-text').textContent = 'Speech Recognition ✗';
+            }
+        }
+
+        // Check services on load
+        document.addEventListener('DOMContentLoaded', checkServices);
+
+        // Re-check every 30 seconds
+        setInterval(checkServices, 30000);
+    </script>
+</body>
+</html>
