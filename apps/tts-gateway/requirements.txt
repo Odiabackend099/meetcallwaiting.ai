@@ -1,0 +1,25 @@
+# Production TTS Dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# TTS Core
+TTS==0.22.0
+torch>=2.0.0
+torchaudio>=2.0.0
+soundfile==0.12.1
+librosa==0.10.1
+
+# Audio Processing
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Caching
+redis==5.0.1
+
+# Utilities
+python-dotenv==1.0.0
+pydantic==2.5.0
+
+# System
+psutil==5.9.6

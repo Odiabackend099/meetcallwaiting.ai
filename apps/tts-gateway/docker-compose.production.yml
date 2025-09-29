@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  tts-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - TTS_MODEL_PATH=/app/models
+      - MAX_CONCURRENT_REQUESTS=10
+      - REQUEST_TIMEOUT=30000
+      - AUDIO_CACHE_SIZE=100
+      - LOG_LEVEL=info
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./cache:/app/cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+    networks:
+      - tts-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    networks:
+      - tts-network
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=tts_gateway
+      - POSTGRES_USER=tts_user
+      - POSTGRES_PASSWORD=secure_tts_password_2024
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - tts-network
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  tts-network:
+    driver: bridge

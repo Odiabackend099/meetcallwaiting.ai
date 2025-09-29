@@ -1,0 +1,51 @@
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    libsndfile1 \
+    ffmpeg \
+    espeak \
+    espeak-data \
+    libespeak1 \
+    libespeak-dev \
+    festival \
+    festvox-kallpc16k \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Coqui TTS
+RUN pip install TTS
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/models /app/logs /app/cache
+
+# Download XTTS model
+RUN python -c "import TTS; TTS.api().list_models()" && \
+    python -c "from TTS.api import TTS; tts = TTS('tts_models/multilingual/multi-dataset/xtts_v2'); tts.tts_to_file('Hello world', speaker_wav='examples/en/speaker_0.wav', language='en', file_path='/tmp/test.wav')" || echo "Model download failed, will download at runtime"
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV TTS_MODEL_PATH=/app/models
+ENV LOG_LEVEL=info
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3001/health || exit 1
+
+# Start the application
+CMD ["python", "server.py"]

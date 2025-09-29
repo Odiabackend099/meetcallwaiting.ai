@@ -1,0 +1,215 @@
+version: '3.8'
+
+services:
+  # TTS Gateway Service
+  tts-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET:-production}
+    container_name: tts-gateway
+    ports:
+      - "${TTS_PORT:-8790}:8790"
+    environment:
+      # Server Configuration
+      - NODE_ENV=${NODE_ENV:-production}
+      - TTS_PORT=${TTS_PORT:-8790}
+      - TTS_HOST=${TTS_HOST:-0.0.0.0}
+      
+      # Database Configuration
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      
+      # Model Configuration
+      - XTTS_MODEL_PATH=${XTTS_MODEL_PATH:-/app/models}
+      - VOICES_DIR=${VOICES_DIR:-/app/voices}
+      - EMBEDDINGS_DIR=${EMBEDDINGS_DIR:-/app/embeddings}
+      - TEMP_DIR=${TEMP_DIR:-/app/temp}
+      
+      # GPU Configuration (if using GPU)
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      
+      # CORS Configuration
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      
+      # Rate Limiting
+      - MAX_CONCURRENT_STREAMS=${MAX_CONCURRENT_STREAMS:-50}
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      # Persistent storage for models and voices
+      - tts-models:/app/models
+      - tts-voices:/app/voices
+      - tts-embeddings:/app/embeddings
+      - tts-logs:/app/logs
+      # Temporary storage (not persistent)
+      - /tmp/tts-temp:/app/temp
+    networks:
+      - tts-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8790/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: ${MEMORY_LIMIT:-4G}
+          cpus: ${CPU_LIMIT:-2.0}
+        reservations:
+          memory: ${MEMORY_RESERVATION:-2G}
+          cpus: ${CPU_RESERVATION:-1.0}
+    depends_on:
+      - redis
+      - postgres
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: tts-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    volumes:
+      - redis-data:/data
+    networks:
+      - tts-network
+    restart: unless-stopped
+    command: >
+      sh -c "
+        if [ -n '${REDIS_PASSWORD}' ]; then
+          redis-server --requirepass ${REDIS_PASSWORD}
+        else
+          redis-server
+        fi
+      "
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL for metadata and usage tracking
+  postgres:
+    image: postgres:15-alpine
+    container_name: tts-postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-tts_gateway}
+      - POSTGRES_USER=${POSTGRES_USER:-tts_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-tts_password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/tts-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - tts-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tts_user} -d ${POSTGRES_DB:-tts_gateway}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: tts-nginx
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - tts-logs:/var/log/nginx
+    networks:
+      - tts-network
+    restart: unless-stopped
+    depends_on:
+      - tts-gateway
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring with Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: tts-prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - tts-network
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: tts-grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - tts-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # Log aggregation with Fluentd (optional)
+  fluentd:
+    image: fluent/fluentd:v1.16-debian-1
+    container_name: tts-fluentd
+    ports:
+      - "${FLUENTD_PORT:-24224}:24224"
+    volumes:
+      - ./logging/fluent.conf:/fluentd/etc/fluent.conf:ro
+      - tts-logs:/var/log/tts
+    networks:
+      - tts-network
+    restart: unless-stopped
+
+volumes:
+  # Persistent volumes
+  tts-models:
+    driver: local
+  tts-voices:
+    driver: local
+  tts-embeddings:
+    driver: local
+  tts-logs:
+    driver: local
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  tts-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
