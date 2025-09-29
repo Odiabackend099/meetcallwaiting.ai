@@ -9,7 +9,7 @@ class CallWaitingChatWidget {
         this.isOpen = false;
         this.isListening = false;
         this.isSpeaking = false;
-        this.isThinking = false;
+        this.isThinking = false;3
         this.audioEnabled = false;
         this.conversationHistory = [];
         
@@ -17,6 +17,9 @@ class CallWaitingChatWidget {
         this.apiBaseUrl = 'http://localhost:3002/api';
         this.groqApiKey = null; // Will be fetched from backend securely
         this.ttsUrl = 'http://localhost:3001/v1/synthesize';
+        
+        // Nigerian network optimization
+        this.networkOptimizer = window.networkOptimizer || null;
         
         this.init();
     }
@@ -837,7 +840,15 @@ class CallWaitingChatWidget {
         this.updateStatus('Thinking...');
 
         try {
-            const response = await this.getAIResponse(message);
+            // Use Nigerian network optimization for API calls
+            const getResponseWithRetry = async () => {
+                return await this.getAIResponse(message);
+            };
+
+            const response = this.networkOptimizer 
+                ? await this.networkOptimizer.retryWithBackoff(getResponseWithRetry, 'chat-message')
+                : await getResponseWithRetry();
+
             this.hideTypingIndicator();
             this.addMessage('assistant', response);
             
